@@ -8,9 +8,9 @@ const crypto = require('crypto')
 const UserSchema = new Schema({
     email: { type: String, unique: true, lowercase: true, required: true },
     password: { type: String, select: false, required: true },
-    userName: { type: String, unique: true, required: true },
+    userName: { type: String, unique: true, lowercase: true, required: true },
     avatar: String,
-    rol_id: String,
+    rol_id: { type: String, required: true },
     signupDate: { type: Date, default: Date.now() },
     lastLogin: Date
 })

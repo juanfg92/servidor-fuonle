@@ -9,106 +9,109 @@ const serviceJwt = require('../services/jwt')
  * @param {*} res 
  */
 async function signUp(req, res) {
-    let existsEmail = false
-    let existsUserName = false
-
     // Check empty camps
-    if (req.body.email != null &&
-        req.body.email != "" &&
-        req.body.password != null &&
-        req.body.password != "" &&
-        req.body.userName != null &&
-        req.body.userName != "" &&
-        req.body.rol_id != null &&
-        req.body.rol_id != "") {
-
-        // Email validation 
-        if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
-        // Password validation between 4 and 10 characters
-        if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
-            message: `the password must be between 4 and 10 characters`
-        });
-
-        // Check duplication email
-        User.findOne({ email: req.body.email }, (err, user) => {
-            if (err) return res.status(500).send({ message: err })
-            if (user) {
-                existsEmail = true
-                return res.status(403).send({ message: `the email: ${req.body.email} is already registered` })
-            }
-
-            // Check duplication userName
-            if (!existsEmail) {
-                User.findOne({ userName: req.body.userName }, (err, user) => {
-                    if (err) return res.status(500).send({ message: err })
-                    if (user) {
-                        existsUserName = true
-                        return res.status(403).send({ message: `the user name: ${req.body.userName} is already registered` })
-                    }
-                })
-            }
-        })
-
-        // Save user
-        if (!existsEmail || !existsUserName) {
-            let user = new User({
-                email: req.body.email,
-                password: req.body.password,
-                userName: req.body.userName,
-                rol_id: req.body.rol_id,
-            })
-
-            user.avatar = user.gravatar();
-
-            user.save((err, user) => {
-                if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
-                return res.status(200).send({
-                    token: serviceJwt.createToken(user),
-                    user: user.id
-                });
-            })
-        }
-
-    } else {
-        res.status(500).send({ message: `Error creating the user: empty camps` })
+    if (req.body.email == null ||
+        req.body.email == "" ||
+        req.body.password == null ||
+        req.body.password == "" ||
+        req.body.userName == null ||
+        req.body.userName == "" ||
+        req.body.rol_id == null ||
+        req.body.rol_id == "") {
+        return res.status(500).send({ message: `Error creating the user: empty camps` })
     }
+
+    // Email validation 
+    if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
+
+    // Password validation between 4 and 10 characters
+    if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
+        message: `the password must be between 4 and 10 characters`
+    });
+
+    // userName validation 
+    if (!(/^[A-Za-z][A-Za-z0-9]{2,9}$/.test(req.body.userName))) return res.status(400).send({ message: "user name not valid" });
+
+    // Check duplication email
+    try {
+        let emailFound = await User.findOne({ email: req.body.email });
+        if (emailFound) {
+            return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+
+    // Check duplication userName
+    try {
+        let userFound = await User.findOne({ email: req.body.email });
+        if (userFound) {
+            return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+
+    // Save user
+    let user = new User({
+        email: req.body.email,
+        password: req.body.password,
+        userName: req.body.userName,
+        rol_id: req.body.rol_id,
+    })
+
+    user.avatar = user.gravatar();
+
+    user.save((err, user) => {
+        if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+        return res.status(200).send({
+            token: serviceJwt.createToken(user),
+            user: user.id
+        });
+    })
 }
 
 function signIn(req, res) {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) return res.status(500).send({ message: err })
-        if (!user) return res.status(404).send({ message: `No existe el usuario: ${req.body.email}` })
+        if (!user) return res.status(404).send({ message: `wrong username or password` })
 
         return user.comparePassword(req.body.password, (err, isMatch) => {
-            if (err) return res.status(500).send({ msg: `Error al ingresar: ${err}` })
-            if (!isMatch) return res.status(404).send({ msg: `Error de contraseña: ${req.body.email}` })
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            if (!isMatch) return res.status(404).send({ message: `wrong username or password` })
 
             req.user = user
             res.status(200).send({
                 message: 'Te has logueado correctamente',
-                token: service.createToken(user)
+                token: serviceJwt.createToken(user)
             })
         })
     }).select('_id email +password');
 }
 
-
-
-
-async function getUser(req, res) {
-
+async function getUserEmail(req, res) {
     let userName = req.params.userName;
     let exp = new RegExp(userName, 'i');
-    User.find({ displayName: { $regex: exp } }, (err, user) => {
-        if (err) return res.status(500).send({ message: "error en la peticion" })
-        if (!user) return res.status(404).send({ message: "No se obtubieron resultados" })
+    User.find({ email: { $regex: exp } }, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
         res.status(200).send({ usuario: user })
     })
+}
 
+async function getUserUserName(req, res) {
+    let userName = req.params.userName;
+    let exp = new RegExp(userName, 'i');
+    User.find({ email: { $regex: exp } }, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
+        res.status(200).send({ usuario: user })
+    })
 }
 
 module.exports = {
     signUp,
     signIn,
-    getUser
+    getUserEmail,
+    getUserUserName
 }

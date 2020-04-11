@@ -15,9 +15,12 @@ api.post('/product', productControllers.saveProduct)
 api.get('/private', auth, (req, res) => {
     res.status(200).send({ message: 'tienes acceso' }) //con token
 })
+
+//user
 api.post('/signup', userctrl.signUp)
 api.post('/signin', userctrl.signIn)
-api.get('/getuser/:userName', userctrl.getUser)
+api.get('/getuseremail/:userName', userctrl.getUserEmail)
+api.get('/getuserusername/:userName', userctrl.getUserUserName)
 
 //classroom
 
@@ -48,7 +51,5 @@ api.get('/getuser/:userName', userctrl.getUser)
 
 //suggestion
 
-
-//user
 
 module.exports = api
