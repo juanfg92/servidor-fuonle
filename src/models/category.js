@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const CategorySchema = Schema({
+    _id_studyLevel: { type: String, require: true },
     CategorytName: { type: String, require: true },
 })
 

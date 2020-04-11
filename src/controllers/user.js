@@ -30,7 +30,7 @@ async function signUp(req, res) {
     });
 
     // userName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9]{2,9}$/.test(req.body.userName))) return res.status(400).send({ message: "user name not valid" });
+    if (!(/^[A-Za-z][A-Za-z0-9]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication email
     try {
@@ -44,7 +44,7 @@ async function signUp(req, res) {
 
     // Check duplication userName
     try {
-        let userFound = await User.findOne({ email: req.body.email });
+        let userFound = await User.findOne({ userName: req.body.userName });
         if (userFound) {
             return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
         }
@@ -153,11 +153,73 @@ async function deleteUser(req, res) {
     })
 }
 
+/**
+ * update user
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function updateUser(req, res) {
+    let userId = req.body.userId;
+    let update = req.body;
+
+    // Check empty camps
+    if (req.body.email == null ||
+        req.body.email == "" ||
+        req.body.password == null ||
+        req.body.password == "" ||
+        req.body.userName == null ||
+        req.body.userName == "" ||
+        req.body.rol_id == null ||
+        req.body.rol_id == "") {
+        return res.status(500).send({ message: `Error updating the user: empty camps` })
+    }
+
+    // Email validation 
+    if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
+
+    // Password validation between 4 and 10 characters
+    if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
+        message: `the password must be between 4 and 10 characters`
+    });
+
+    // userName validation 
+    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+
+    // Check duplication email
+    try {
+        let emailFound = await User.findOne({ email: req.body.email });
+        if (emailFound) {
+            return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+
+    // Check duplication userName
+    try {
+        let userFound = await User.findOne({ userName: req.body.userName });
+        if (userFound) {
+            return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+
+    //update user
+    User.findOneAndUpdate(userId, update, (err, userUpdate) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+        res.status(200).send({ user: userUpdate })
+    })
+}
+
 module.exports = {
     signUp,
     signIn,
     getUsers,
     getUserByEmail,
     getUserByUserName,
-    deleteUser
+    deleteUser,
+    updateUser
 }

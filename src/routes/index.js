@@ -19,10 +19,11 @@ api.get('/private', auth, (req, res) => {
 //user
 api.post('/signup', userctrl.signUp)
 api.post('/signin', userctrl.signIn)
-api.get('/getusers', userctrl.getUsers)
-api.get('/getuserbyemail', userctrl.getUserByEmail)
-api.get('/getuserbyusername', userctrl.getUserByUserName)
-api.delete('/deleteuser', userctrl.deleteUser)
+api.get('/get-users', userctrl.getUsers)
+api.get('/get-user-by-email', userctrl.getUserByEmail)
+api.get('/get-user-by-username', userctrl.getUserByUserName)
+api.delete('/delete-user', userctrl.deleteUser)
+api.put('/update-user', userctrl.updateUser)
 
 //classroom
 
