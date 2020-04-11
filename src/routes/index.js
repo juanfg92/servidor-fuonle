@@ -19,8 +19,10 @@ api.get('/private', auth, (req, res) => {
 //user
 api.post('/signup', userctrl.signUp)
 api.post('/signin', userctrl.signIn)
-api.get('/getuseremail/:userName', userctrl.getUserEmail)
-api.get('/getuserusername/:userName', userctrl.getUserUserName)
+api.get('/getusers', userctrl.getUsers)
+api.get('/getuserbyemail', userctrl.getUserByEmail)
+api.get('/getuserbyusername', userctrl.getUserByUserName)
+api.delete('/deleteuser', userctrl.deleteUser)
 
 //classroom
 
@@ -34,7 +36,10 @@ api.get('/getuserusername/:userName', userctrl.getUserUserName)
 //document_public
 
 
-//filter
+//category
+
+
+//subcategory
 
 
 //incidence

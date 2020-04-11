@@ -71,6 +71,11 @@ async function signUp(req, res) {
     })
 }
 
+/**
+ * Log user
+ * @param {*} req 
+ * @param {*} res 
+ */
 function signIn(req, res) {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) return res.status(500).send({ message: err })
@@ -89,9 +94,27 @@ function signIn(req, res) {
     }).select('_id email +password');
 }
 
-async function getUserEmail(req, res) {
-    let userName = req.params.userName;
-    let exp = new RegExp(userName, 'i');
+/**
+ * get all users
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUsers(req, res) {
+    User.find({}, (err, users) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (users.length == 0) return res.status(404).send({ message: `no results have been obtained` })
+        res.status(200).send({ usuario: users })
+    })
+}
+
+/**
+ * find user by email
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUserByEmail(req, res) {
+    let userEmail = req.body.email;
+    let exp = new RegExp(userEmail, 'i');
     User.find({ email: { $regex: exp } }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
         if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
@@ -99,19 +122,42 @@ async function getUserEmail(req, res) {
     })
 }
 
-async function getUserUserName(req, res) {
-    let userName = req.params.userName;
+/**
+ * find user by userName
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUserByUserName(req, res) {
+    let userName = req.body.userName;
     let exp = new RegExp(userName, 'i');
-    User.find({ email: { $regex: exp } }, (err, user) => {
+    User.find({ userName: { $regex: exp } }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
         if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
         res.status(200).send({ usuario: user })
+    })
+}
+
+/**
+ * delete user
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteUser(req, res) {
+    let userId = req.body.userId;
+
+    User.findByIdAndRemove(userId, (err) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+        res.status(200).send({ message: `user ${userId} has been deleted` })
     })
 }
 
 module.exports = {
     signUp,
     signIn,
-    getUserEmail,
-    getUserUserName
+    getUsers,
+    getUserByEmail,
+    getUserByUserName,
+    deleteUser
 }
