@@ -155,6 +155,7 @@ async function deleteUser(req, res) {
 
 /**
  * update user
+ * at the moment, he can only change password
  * @param {*} req 
  * @param {*} res 
  */
@@ -175,7 +176,7 @@ async function updateUser(req, res) {
     }
 
     // Email validation 
-    if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
+    // if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
 
     // Password validation between 4 and 10 characters
     if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
@@ -183,27 +184,27 @@ async function updateUser(req, res) {
     });
 
     // userName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    // if (!(/^[A-Za-z][A-Za-z0-9 ]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication email
-    try {
-        let emailFound = await User.findOne({ email: req.body.email });
-        if (emailFound) {
-            return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
-        }
-    } catch (err) {
-        return res.status(500).send({ message: `Error server: ${err}` });
-    }
+    // try {
+    //     let emailFound = await User.findOne({ email: req.body.email });
+    //     if (emailFound) {
+    //         return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
+    //     }
+    // } catch (err) {
+    //     return res.status(500).send({ message: `Error server: ${err}` });
+    // }
 
     // Check duplication userName
-    try {
-        let userFound = await User.findOne({ userName: req.body.userName });
-        if (userFound) {
-            return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
-        }
-    } catch (err) {
-        return res.status(500).send({ message: `Error server: ${err}` });
-    }
+    // try {
+    //     let userFound = await User.findOne({ userName: req.body.userName });
+    //     if (userFound) {
+    //         return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
+    //     }
+    // } catch (err) {
+    //     return res.status(500).send({ message: `Error server: ${err}` });
+    // }
 
     //update user
     User.findOneAndUpdate(userId, update, (err, userUpdate) => {

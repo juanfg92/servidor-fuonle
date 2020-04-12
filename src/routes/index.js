@@ -5,6 +5,7 @@ const api = express.Router()
 const productControllers = require('../controllers/products')
 const auth = require('../middlewares/auth')
 const userctrl = require('../controllers/user')
+const classroomctrl = require('../controllers/classroom')
 
 api.get('/product/:productId', productControllers.getProduct)
 api.get('/products', auth, productControllers.getProducts) //con token
@@ -26,6 +27,11 @@ api.delete('/delete-user', userctrl.deleteUser)
 api.put('/update-user', userctrl.updateUser)
 
 //classroom
+api.post('/new-classroom', classroomctrl.newClassroom)
+api.get('/get-classrooms', classroomctrl.getClassrooms)
+api.get('/get-classrooms-by-classroomname', classroomctrl.getClassroomsByClassroomName)
+api.get('/get-classroom-by-id', classroomctrl.getClassroomById)
+api.delete('/delete-classroom', classroomctrl.deleteClassroom)
 
 
 //comment
