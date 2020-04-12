@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const Document_privateSchema = Schema({
+    _id_classroom: { type: String, require: true },
     _id_section: { type: String, require: true },
     _id_user: { type: String, require: true },
     documentName: { type: String, require: true },

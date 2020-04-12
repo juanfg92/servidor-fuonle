@@ -2,6 +2,10 @@
 
 const Classroom = require('../models/classroom')
 const Section = require('../models/section')
+const Doc_private = require('../models/document_private')
+const path = require("path");
+const fs = require("fs");
+var rimraf = require("rimraf");
 
 /**
  * add new classroom
@@ -49,6 +53,11 @@ async function newClassroom(req, res) {
 
     classroom.save((err, classroom) => {
         if (err) res.status(500).send({ message: `Error creating the class room: ${err}` })
+            //create folder of classroom
+        let folder = path.resolve(__dirname + "/../../classroom/" + classroom._id);
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+        }
         return res.status(200).send({ classroom: classroom });
     })
 }
@@ -100,18 +109,28 @@ async function getClassroomById(req, res) {
  * @param {*} req 
  * @param {*} res 
  */
-async function deleteClassroom(req, res) {
+function deleteClassroom(req, res) {
     let classroomId = req.body.classroomId;
     Classroom.findByIdAndRemove(classroomId, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
-        //remove all sections contained in this classroom
+        //remove all sections and documents contained in this classroom
         Section.deleteMany({ _id_classroom: classroomId }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
         })
+        Doc_private.deleteMany({ _id_classroom: classroomId }, (err) => {
+            if (err) {
+                res.status(500).send({ message: `Error server: ${err}` })
+            }
+        })
+
+        //remove all containers from the classroom
+        let pathFile = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId)
+        rimraf.sync(pathFile);
+
         res.status(200).send({ message: `class room ${classroomId} has been deleted` })
     })
 }
