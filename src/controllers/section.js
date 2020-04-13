@@ -17,7 +17,7 @@ async function newSection(req, res) {
         req.body.classroomId == "" ||
         req.body.sectionName == null ||
         req.body.sectionName == "") {
-        return res.status(500).send({ message: `Error creating the class room: empty camps` })
+        return res.status(500).send({ message: `Error creating the section: empty camps` })
     }
 
     // section validation 
@@ -70,8 +70,13 @@ function deleteSection(req, res) {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
-        //remove all documents contained in this classroom
+        //remove all documents and comments contained in this section
         Doc_private.deleteMany({ _id_section: sectionId }, (err) => {
+            if (err) {
+                res.status(500).send({ message: `Error server: ${err}` })
+            }
+        })
+        Comment.deleteMany({ _id_section: sectionId }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }

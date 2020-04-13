@@ -3,6 +3,7 @@
 const Classroom = require('../models/classroom')
 const Section = require('../models/section')
 const Doc_private = require('../models/document_private')
+const Comment = require('../models/comment')
 const path = require("path");
 const fs = require("fs");
 var rimraf = require("rimraf");
@@ -116,13 +117,18 @@ function deleteClassroom(req, res) {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
-        //remove all sections and documents contained in this classroom
+        //remove all sections, documents and comments contained in this classroom
         Section.deleteMany({ _id_classroom: classroomId }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
         })
         Doc_private.deleteMany({ _id_classroom: classroomId }, (err) => {
+            if (err) {
+                res.status(500).send({ message: `Error server: ${err}` })
+            }
+        })
+        Comment.deleteMany({ _id_classroom: classroomId }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }

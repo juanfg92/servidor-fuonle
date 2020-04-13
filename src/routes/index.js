@@ -6,6 +6,8 @@ const auth = require('../middlewares/auth')
 const userctrl = require('../controllers/user')
 const classroomctrl = require('../controllers/classroom')
 const sectionctrl = require('../controllers/section')
+const commentctrl = require('../controllers/comment')
+const doc_privatectrl = require('../controllers/document_private')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -41,10 +43,13 @@ api.delete('/delete-section', sectionctrl.deleteSection)
 api.put('/update-section', sectionctrl.updateSection)
 
 //comment
-
+api.post('/new-comment', commentctrl.newComment)
+api.get('/get-comments-from-section', commentctrl.getCommentFromSection)
+api.delete('/delete-comment', commentctrl.deleteComment)
+api.put('/update-comment', commentctrl.updateComment)
 
 //document_private
-
+api.post('/upload-document-private', doc_privatectrl.uploadDocPrivate)
 
 //document_public
 
