@@ -33,7 +33,8 @@ async function newClassroom(req, res) {
 
     // Check duplication classroomName
     try {
-        let classroomNameFound = await Classroom.findOne({ classroomName: req.body.classroomName });
+        let exp = new RegExp(req.body.classroomName, 'i');
+        let classroomNameFound = await Classroom.findOne({ classroomName: { $regex: exp } });
         if (classroomNameFound) {
             return res.status(400).send({ message: `the class room name: ${req.body.classroomName} is already registered` });
         }
@@ -135,10 +136,59 @@ function deleteClassroom(req, res) {
     })
 }
 
+/**
+ * update classroom
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function updateClassroom(req, res) {
+    let update = req.body;
+
+    // Check empty camps
+    if (req.body.classroomId == null ||
+        req.body.classroomId == "" ||
+        req.body.password == null ||
+        req.body.password == "" ||
+        req.body.classroomName == null ||
+        req.body.classroomName == "") {
+        return res.status(500).send({ message: `Error updating the class room: empty camps` })
+    }
+
+    // Password validation between 4 and 10 characters
+    if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
+        message: `the password must be between 4 and 10 characters`
+    });
+
+    // classroom validation 
+    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,24}$/.test(req.body.classroomName))) return res.status(400).send({ message: `the class room name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
+
+    // Check duplication classroomName
+    try {
+        let exp = new RegExp(req.body.classroomName, 'i');
+        let classroomFound = await Classroom.findOne({ classroomName: { $regex: exp } });
+
+        if (classroomFound) {
+            if (classroomFound._id != req.body.classroomId) {
+                return res.status(400).send({ message: `the class room name: ${req.body.classroomName} is already registered` });
+            }
+        }
+        //update classroom
+        Classroom.findOneAndUpdate(req.body.classroomId, update, (err, classroom) => {
+            if (err) {
+                res.status(500).send({ message: `Error server: ${err}` })
+            }
+            res.status(200).send({ Classroom: classroom })
+        })
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+}
+
 module.exports = {
     newClassroom,
     getClassrooms,
     getClassroomsByClassroomName,
     getClassroomById,
-    deleteClassroom
+    deleteClassroom,
+    updateClassroom
 }

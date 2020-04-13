@@ -34,7 +34,8 @@ async function signUp(req, res) {
 
     // Check duplication email
     try {
-        let emailFound = await User.findOne({ email: req.body.email });
+        let exp = new RegExp(req.body.email, 'i');
+        let emailFound = await User.findOne({ email: { $regex: exp } });
         if (emailFound) {
             return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
         }
@@ -44,7 +45,8 @@ async function signUp(req, res) {
 
     // Check duplication userName
     try {
-        let userFound = await User.findOne({ userName: req.body.userName });
+        let exp = new RegExp(req.body.userName, 'i');
+        let userFound = await User.findOne({ userName: { $regex: exp } });
         if (userFound) {
             return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
         }
