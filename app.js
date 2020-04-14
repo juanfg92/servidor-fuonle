@@ -6,6 +6,7 @@ const app = express();
 const api = require('./src/routes')
 const fileUpload = require('express-fileupload')
 
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(fileUpload())

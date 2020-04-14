@@ -50,6 +50,7 @@ api.put('/update-comment', commentctrl.updateComment)
 
 //document_private
 api.post('/upload-document-private', doc_privatectrl.uploadDocPrivate)
+api.post('/get-private-document', doc_privatectrl.getDocPrivate)
 
 //document_public
 
