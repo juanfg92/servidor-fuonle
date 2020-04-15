@@ -26,14 +26,14 @@ async function uploadDocPrivate(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,24}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     //get extension
     let spl = req.files.file.name.split(".");
     let ext = spl[spl.length - 1]
-    debugger;
+
     //extension validation
-    // if (!(/^(.docx|.pdf)$/.test(req.body.documentName))) return res.status(400).send({ message: `the document extension must be (docx | pdf)` });
+    if (!(/^(docx)$/.test(ext))) return res.status(400).send({ message: `the document extension must be .docx` });
 
     // Save document
     let doc_private = new Doc_private({
@@ -60,6 +60,24 @@ async function uploadDocPrivate(req, res) {
     })
 }
 
+/**
+ * get all documents of a section
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getDocumentsFromSection(req, res) {
+    Doc_private.find({ _id_section: req.body.sectionId }, (err, documents) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (documents.length == 0) return res.status(404).send({ message: `no results have been obtained` })
+        res.status(200).send({ Documents: documents })
+    })
+}
+
+/**
+ * get a private document
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getDocPrivate(req, res) {
     let documentId = req.body.documentId
     let docFound
@@ -102,10 +120,8 @@ async function getDocPrivate(req, res) {
             })
             .done();
     }
-    //case pdf
+    //case pdf (disable)
     if (docFound.extension == "pdf") {
-
-
         pdf2html.html(folder, (err, html) => {
             if (err) {
                 console.error('Conversion error: ' + err)
@@ -116,7 +132,52 @@ async function getDocPrivate(req, res) {
     }
 }
 
+/**
+ * delete document
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteDocument(req, res) {
+    let documentId = req.body.documentId;
+
+    Doc_private.findByIdAndRemove(documentId, (err) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+        res.status(200).send({ message: `document ${documentId} has been deleted` })
+    })
+}
+
+async function updateDocument(req, res) {
+    let update = req.body;
+
+    // Check empty camps
+    if (req.body.documentId == null ||
+        req.body.documentId == "" ||
+        req.body.documentName == null ||
+        req.body.documentName == "") {
+        return res.status(500).send({ message: `Error creating the document: empty camps` })
+    }
+
+    // documentName validation 
+    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+
+    //update section
+    Doc_private.findOneAndUpdate({ _id: req.body.documentId }, update, (err, document) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+        res.status(200).send({ Document: document })
+    })
+
+}
+
+
+
 module.exports = {
     uploadDocPrivate,
-    getDocPrivate
+    getDocumentsFromSection,
+    getDocPrivate,
+    deleteDocument,
+    updateDocument
 }

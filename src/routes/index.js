@@ -51,6 +51,9 @@ api.put('/update-comment', commentctrl.updateComment)
 //document_private
 api.post('/upload-document-private', doc_privatectrl.uploadDocPrivate)
 api.post('/get-private-document', doc_privatectrl.getDocPrivate)
+api.post('/get-documents-from-section', doc_privatectrl.getDocumentsFromSection)
+api.delete('/delete-document', doc_privatectrl.deleteDocument)
+api.put('/update-document', doc_privatectrl.updateDocument)
 
 //document_public
 
