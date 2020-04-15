@@ -5,15 +5,12 @@ const path = require("path")
 const fs = require("fs")
 const mammoth = require("mammoth")
 const pdf2html = require('pdf2html')
-const { Poppler } = require('node-poppler');
-
 
 /**
- * controlar extension de documento para almacenarlo y a la hora de recogerlo ponerle su extension
+ * upload file (.docx|.pdf)
+ * @param {*} req 
+ * @param {*} res 
  */
-
-
-
 async function uploadDocPrivate(req, res) {
     // Check empty camps
     if (req.body.classroomId == null ||
@@ -34,6 +31,9 @@ async function uploadDocPrivate(req, res) {
     //get extension
     let spl = req.files.file.name.split(".");
     let ext = spl[spl.length - 1]
+    debugger;
+    //extension validation
+    // if (!(/^(.docx|.pdf)$/.test(req.body.documentName))) return res.status(400).send({ message: `the document extension must be (docx | pdf)` });
 
     // Save document
     let doc_private = new Doc_private({
@@ -51,9 +51,11 @@ async function uploadDocPrivate(req, res) {
         //upload file and move to section folder
         let EDFile = req.files.file
         let folder = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + req.body.sectionId + "/" + doc_private._id + "." + ext);
+
         EDFile.mv(folder, err => {
             if (err) return res.status(500).send({ message: err })
         })
+
         return res.status(200).send({ Document_private: doc_private });
     })
 }
@@ -74,6 +76,7 @@ async function getDocPrivate(req, res) {
 
     // route document
     let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + "." + docFound.extension);
+    //case docx
     if (docFound.extension == "docx") {
         var options = {
             styleMap: [
@@ -99,19 +102,18 @@ async function getDocPrivate(req, res) {
             })
             .done();
     }
+    //case pdf
     if (docFound.extension == "pdf") {
 
-        const options = { text: true }
-        pdf2html.pages(folder, options, (err, textPages) => {
+
+        pdf2html.html(folder, (err, html) => {
             if (err) {
                 console.error('Conversion error: ' + err)
             } else {
-                return res.status(200).send({ resp: textPages });
+                return res.status(200).send({ resp: html });
             }
         })
     }
-
-
 }
 
 module.exports = {

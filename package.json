@@ -30,7 +30,6 @@
         "mammoth": "^1.4.9",
         "moment": "^2.24.0",
         "mongoose": "^5.9.7",
-        "node-poppler": "^1.6.0",
         "pdf2html": "^2.5.2",
         "rimraf": "^3.0.2",
         "uuid": "^7.0.3"
