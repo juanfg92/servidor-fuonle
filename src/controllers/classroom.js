@@ -25,7 +25,7 @@ async function newClassroom(req, res) {
     }
 
     // classroom validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,24}$/.test(req.body.classroomName))) return res.status(400).send({ message: `the class room name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,50}$/.test(req.body.classroomName))) return res.status(400).send({ message: `the class room name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Password validation between 4 and 10 characters
     if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({

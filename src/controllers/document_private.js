@@ -4,7 +4,7 @@ const Doc_private = require('../models/document_private')
 const path = require("path")
 const fs = require("fs")
 const mammoth = require("mammoth")
-const pdf2html = require('pdf2html')
+const pdf2html = require("pdf2html")
 
 /**
  * upload file (.docx|.pdf)
@@ -50,12 +50,11 @@ async function uploadDocPrivate(req, res) {
 
         //upload file and move to section folder
         let EDFile = req.files.file
-        let folder = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + req.body.sectionId + "/" + doc_private._id + "." + ext);
+        let folder = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + req.body.sectionId + "/" + doc_private._id);
 
         EDFile.mv(folder, err => {
             if (err) return res.status(500).send({ message: err })
         })
-
         return res.status(200).send({ Document_private: doc_private });
     })
 }
@@ -122,10 +121,14 @@ async function getDocPrivate(req, res) {
     }
     //case pdf (disable)
     if (docFound.extension == "pdf") {
+
         pdf2html.html(folder, (err, html) => {
             if (err) {
                 console.error('Conversion error: ' + err)
             } else {
+                html = html.split("</head>")[1];
+                html = html.replace(/\n/gi, '');
+                html = html.replace(/\r/gi, '');
                 return res.status(200).send({ resp: html });
             }
         })

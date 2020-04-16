@@ -7,8 +7,8 @@ const Document_publicSchema = Schema({
     _id_user: { type: String, require: true },
     documentName: { type: String, require: true },
     description: String,
-    uploadDate: { type: Date, default: Date.now() },
-    filter: Array
+    filter: Array,
+    uploadDate: { type: Date, default: Date.now() }
 })
 
 module.exports = mongoose.model('Document_public', Document_publicSchema)

@@ -8,6 +8,7 @@ const classroomctrl = require('../controllers/classroom')
 const sectionctrl = require('../controllers/section')
 const commentctrl = require('../controllers/comment')
 const doc_privatectrl = require('../controllers/document_private')
+const studyLevel = require('../controllers/study_level')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -59,7 +60,7 @@ api.put('/update-document', doc_privatectrl.updateDocument)
 
 
 //studyLevel
-
+api.post('/new-study-level', studyLevel.newStudyLevel)
 
 //category
 
