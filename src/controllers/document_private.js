@@ -122,16 +122,16 @@ async function getDocPrivate(req, res) {
     //case pdf (disable)
     if (docFound.extension == "pdf") {
 
-        pdf2html.html(folder, (err, html) => {
-            if (err) {
-                console.error('Conversion error: ' + err)
-            } else {
-                html = html.split("</head>")[1];
-                html = html.replace(/\n/gi, '');
-                html = html.replace(/\r/gi, '');
-                return res.status(200).send({ resp: html });
-            }
-        })
+        pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
+            // if (err) {
+            //     console.error('Conversion error: ' + err)
+            // } else {
+            //     html = html.split("</head>")[1];
+            //     html = html.replace(/\n/gi, '');
+            //     html = html.replace(/\r/gi, '');
+            //     return res.status(200).send({ resp: html });
+            // }
+            // })
     }
 }
 

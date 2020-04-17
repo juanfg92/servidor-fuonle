@@ -61,11 +61,17 @@ api.put('/update-document', doc_privatectrl.updateDocument)
 
 //studyLevel
 api.post('/new-study-level', studyLevel.newStudyLevel)
+api.get('/get-study-level', studyLevel.getStudyLevels)
+api.delete('/delete-study-level', studyLevel.deleteStudyLevel)
+api.put('/update-study-level', studyLevel.updateStudyLevel)
 
 //category
 
 
 //subcategory
+
+
+//docType
 
 
 //incidence
