@@ -8,7 +8,9 @@ const classroomctrl = require('../controllers/classroom')
 const sectionctrl = require('../controllers/section')
 const commentctrl = require('../controllers/comment')
 const doc_privatectrl = require('../controllers/document_private')
-const studyLevel = require('../controllers/study_level')
+const studyLevelctrl = require('../controllers/study_level')
+const categoryctrl = require('../controllers/category')
+const subcategoryctrl = require('../controllers/subcategory')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -60,16 +62,22 @@ api.put('/update-document', doc_privatectrl.updateDocument)
 
 
 //studyLevel
-api.post('/new-study-level', studyLevel.newStudyLevel)
-api.get('/get-study-level', studyLevel.getStudyLevels)
-api.delete('/delete-study-level', studyLevel.deleteStudyLevel)
-api.put('/update-study-level', studyLevel.updateStudyLevel)
+api.post('/new-study-level', studyLevelctrl.newStudyLevel)
+api.get('/get-study-level', studyLevelctrl.getStudyLevels)
+api.delete('/delete-study-level', studyLevelctrl.deleteStudyLevel)
+api.put('/update-study-level', studyLevelctrl.updateStudyLevel)
 
 //category
-
+api.post('/new-category', categoryctrl.newCategory)
+api.get('/get-categories-by-study-level', categoryctrl.getCategoriesByStudyLevel)
+api.delete('/delete-category', categoryctrl.deleteCategory)
+api.put('/update-category', categoryctrl.updateCategory)
 
 //subcategory
-
+api.post('/new-subcategory', subcategoryctrl.newSubcategory)
+api.get('/get-subcategories-by-study-level-and-category', subcategoryctrl.getSubcategoriesByStudyLevelAndCategoryId)
+api.delete('/delete-subcategory', subcategoryctrl.deleteSubcategory)
+api.put('/update-subcategory', subcategoryctrl.updateSubcategory)
 
 //docType
 

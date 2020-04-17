@@ -12,8 +12,8 @@ async function newCategory(req, res) {
     // Check empty camps
     if (req.body.categoryName == null ||
         req.body.categoryName == "" ||
-        req.body.categoryId == null ||
-        req.body.categoryId == "") {
+        req.body.studyLevelId == null ||
+        req.body.studyLevelId == "") {
         return res.status(500).send({ message: `Error creating the category: empty camps` })
     }
 
@@ -22,7 +22,7 @@ async function newCategory(req, res) {
 
     // Check duplication category
     try {
-        let categoryFound = await category.findOne({ categoryName: req.body.categoryName, _id_category: req.body.categoryId });
+        let categoryFound = await Category.findOne({ categoryName: req.body.categoryName, _id_studyLevel: req.body.studyLevelId });
         if (categoryFound) {
             return res.status(400).send({ message: `the category name: ${req.body.categoryName} is already registered` });
         }
@@ -33,7 +33,7 @@ async function newCategory(req, res) {
     // Save category
     let category = new Category({
         categoryName: req.body.categoryName,
-        _id_category: req.body.categoryId
+        _id_studyLevel: req.body.studyLevelId
     })
 
     category.save((err, category) => {
@@ -44,12 +44,12 @@ async function newCategory(req, res) {
 }
 
 /**
- * get all categories by categoryId
+ * get all categories by studyLevelId
  * @param {*} req 
  * @param {*} res 
  */
-async function getCategoriesBycategory(req, res) {
-    Category.find({ _id_category: req.body.categoryId }, (err, categories) => {
+async function getCategoriesByStudyLevel(req, res) {
+    Category.find({ _id_studyLevel: req.body.studyLevelId }, (err, categories) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
         if (categories.length == 0) return res.status(404).send({ message: `no results have been obtained` })
         res.status(200).send({ Categories: categories })
@@ -101,15 +101,12 @@ async function updateCategory(req, res) {
 
     // Check duplication category
     try {
-        let categoryFound = await Category.findOne({ categoryName: req.body.categoryName, _id_category: req.body.categoryId });
+        let categoryFound = await Category.findOne({ categoryName: req.body.categoryName, _id_studyLevel: req.body.studyLevelId });
         if (categoryFound) {
             return res.status(400).send({ message: `the category name: ${req.body.categoryName} is already registered` });
         }
-        let filter = {
-            _id_category = req.body.categoryId,
-            _id_studyLevel = req.body.studyLevelId
-        }
-        Category.findOneAndUpdate({ filter }, update, (err, category) => {
+
+        Category.findOneAndUpdate({ _id: req.body.categoryId }, update, (err, category) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
@@ -122,7 +119,7 @@ async function updateCategory(req, res) {
 
 module.exports = {
     newCategory,
-    getCategoriesBycategory,
+    getCategoriesByStudyLevel,
     deleteCategory,
     updateCategory
 }
