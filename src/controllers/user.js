@@ -30,7 +30,7 @@ async function signUp(req, res) {
     });
 
     // userName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication email
     try {

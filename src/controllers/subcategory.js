@@ -19,7 +19,7 @@ async function newSubcategory(req, res) {
     }
 
     // subcategoryName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication subcategory
     try {
@@ -95,7 +95,7 @@ async function updateSubcategory(req, res) {
     }
 
     // subcategoryName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication category
     try {

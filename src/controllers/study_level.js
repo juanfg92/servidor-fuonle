@@ -18,7 +18,7 @@ async function newStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication studyLevel
     try {
@@ -97,7 +97,7 @@ async function updateStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication studyLevel
     try {

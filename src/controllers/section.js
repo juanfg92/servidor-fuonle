@@ -21,7 +21,7 @@ async function newSection(req, res) {
     }
 
     // section validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,24}$/.test(req.body.sectionName))) return res.status(400).send({ message: `the section name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,24}$/.test(req.body.sectionName))) return res.status(400).send({ message: `the section name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication sectionName
     try {
@@ -109,7 +109,7 @@ async function updateSection(req, res) {
     }
 
     // section validation 
-    if (!(/^[A-Za-z][A-Za-z0-9 ]{2,24}$/.test(req.body.sectionName))) return res.status(400).send({ message: `the section name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,24}$/.test(req.body.sectionName))) return res.status(400).send({ message: `the section name must be between 2 and 25 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication section
     try {

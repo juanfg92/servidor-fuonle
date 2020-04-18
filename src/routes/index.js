@@ -8,9 +8,11 @@ const classroomctrl = require('../controllers/classroom')
 const sectionctrl = require('../controllers/section')
 const commentctrl = require('../controllers/comment')
 const doc_privatectrl = require('../controllers/document_private')
+const doc_publicctrl = require('../controllers/document_public')
 const studyLevelctrl = require('../controllers/study_level')
 const categoryctrl = require('../controllers/category')
 const subcategoryctrl = require('../controllers/subcategory')
+const doc_typectrl = require('../controllers/doc_type')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -55,11 +57,15 @@ api.put('/update-comment', commentctrl.updateComment)
 api.post('/upload-document-private', doc_privatectrl.uploadDocPrivate)
 api.post('/get-private-document', doc_privatectrl.getDocPrivate)
 api.post('/get-documents-from-section', doc_privatectrl.getDocumentsFromSection)
-api.delete('/delete-document', doc_privatectrl.deleteDocument)
-api.put('/update-document', doc_privatectrl.updateDocument)
+api.delete('/delete-private-document', doc_privatectrl.deleteDocument)
+api.put('/update-private-document', doc_privatectrl.updateDocument)
 
 //document_public
-
+api.post('/upload-document-public', doc_privatectrl.uploadDocPrivate)
+api.get('/get-public-documents', commentctrl.getCommentFromSection)
+api.post('/get-public-documents-filter', doc_privatectrl.getDocPrivate)
+api.delete('/delete-public-document', doc_privatectrl.deleteDocument)
+api.put('/update-public-document', doc_privatectrl.updateDocument)
 
 //studyLevel
 api.post('/new-study-level', studyLevelctrl.newStudyLevel)
@@ -80,7 +86,10 @@ api.delete('/delete-subcategory', subcategoryctrl.deleteSubcategory)
 api.put('/update-subcategory', subcategoryctrl.updateSubcategory)
 
 //docType
-
+api.post('/new-doctype', doc_typectrl.newDoc_type)
+api.get('/get-doctypes', doc_typectrl.getDoc_types)
+api.delete('/delete-doctype', doc_typectrl.deleteDoc_type)
+api.put('/update-doctype', doc_typectrl.updateDoc_type)
 
 //incidence
 
