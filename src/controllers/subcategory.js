@@ -1,6 +1,9 @@
 'use strict'
 
 const Subcategory = require('../models/subcategory')
+const path = require("path");
+const fs = require("fs");
+var rimraf = require("rimraf");
 
 /**
  * new subcategory
@@ -19,7 +22,7 @@ async function newSubcategory(req, res) {
     }
 
     // subcategoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication subcategory
     try {
@@ -41,6 +44,11 @@ async function newSubcategory(req, res) {
     subcategory.save((err, subcategory) => {
         if (err) res.status(500).send({ message: `Error creating subcategory: ${err}` })
 
+        //create subcategory folder
+        let folder = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + subcategory._id);
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+        }
         return res.status(200).send({ Subcategory: subcategory });
     })
 }
@@ -70,7 +78,11 @@ function deleteSubcategory(req, res) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
 
-        res.status(200).send({ message: `category ${subcategoryId} has been deleted` })
+        //remove all containers from the subcategory
+        let pathFile = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + req.body.subcategoryId)
+        rimraf.sync(pathFile);
+
+        res.status(200).send({ message: `subcategory ${subcategoryId} has been deleted` })
     })
 }
 
@@ -95,7 +107,7 @@ async function updateSubcategory(req, res) {
     }
 
     // subcategoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.subcategoryName))) return res.status(400).send({ message: `the subcategory name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication category
     try {

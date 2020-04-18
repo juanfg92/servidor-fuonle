@@ -15,7 +15,7 @@ async function newDoc_type(req, res) {
     }
 
     // doc_typeName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication doc_type
     try {
@@ -84,7 +84,7 @@ async function updateDoc_type(req, res) {
     }
 
     // doc_typeName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,30}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 30 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication doc_type
     try {

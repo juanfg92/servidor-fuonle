@@ -3,7 +3,9 @@
 const StudyLevel = require('../models/study_level')
 const Category = require('../models/category')
 const Subcategory = require('../models/subcategory')
-
+const path = require("path");
+const fs = require("fs");
+var rimraf = require("rimraf");
 
 /**
  * new studyLevel
@@ -18,7 +20,7 @@ async function newStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication studyLevel
     try {
@@ -37,7 +39,11 @@ async function newStudyLevel(req, res) {
 
     studyLevel.save((err, studyLevel) => {
         if (err) res.status(500).send({ message: `Error creating study level: ${err}` })
-
+            //create study level folder
+        let folder = path.resolve(__dirname + "/../../private_document/" + studyLevel._id);
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder, { recursive: true });
+        }
         return res.status(200).send({ StudyLevel: studyLevel });
     })
 }
@@ -78,6 +84,9 @@ function deleteStudyLevel(req, res) {
             }
         })
 
+        //remove all containers from the studyLevel
+        let pathFile = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId)
+        rimraf.sync(pathFile);
         res.status(200).send({ message: `study level ${studyLevelId} has been deleted` })
     })
 }
@@ -97,7 +106,7 @@ async function updateStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,20}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication studyLevel
     try {

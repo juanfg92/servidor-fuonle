@@ -77,9 +77,10 @@ async function uploadDocPublic(req, res) {
  * @param {*} req 
  * @param {*} res 
  */
-async function getDocspublic(req, res) {
+async function getDocsPublic(req, res) {
     let docFound = []
     let docsSend = []
+    let folder
 
     //find document
     try {
@@ -92,7 +93,11 @@ async function getDocspublic(req, res) {
     }
     docFound.forEach(doc => {
         // route document
-        let folder = path.resolve(__dirname + "/../../private_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id + "." + doc.extension);
+        if (doc.categoryId) {
+            folder = path.resolve(__dirname + "/../../private_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id + "." + doc.extension);
+        } else { //case pre-primaria, dont have categories and subcategories
+            folder = path.resolve(__dirname + "/../../private_document/" + doc.studyLevelId + "/" + doc._id + "." + doc.extension);
+        }
         //case docx
         if (docFound.extension == "docx") {
             var options = {
