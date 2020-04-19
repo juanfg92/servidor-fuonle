@@ -21,7 +21,7 @@ async function newCategory(req, res) {
     }
 
     // categoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,60}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 60 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication category
     try {
@@ -109,7 +109,7 @@ async function updateCategory(req, res) {
     }
 
     // categoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42]{2,50}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,60}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 60 characters, not contain spaces and empy start with a letter` });
 
     // Check duplication category
     try {

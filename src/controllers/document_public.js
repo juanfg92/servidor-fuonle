@@ -32,10 +32,10 @@ async function uploadDocPublic(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 ]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not empty spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not empty spaces and empy start with a letter` });
 
     // description validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóú][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
 
 
     //get extension
