@@ -8,8 +8,8 @@ const Document_publicSchema = Schema({
     documentName: { type: String, require: true },
     description: { type: String, require: true },
     _id_studyLevel: { type: String, require: true },
-    _id_category: { type: String, require: true },
-    _id_subcategory: { type: String, require: true },
+    _id_category: String,
+    _id_subcategory: String,
     _id_doc_type: { type: String, require: true },
     extension: { type: String, require: true },
     uploadDate: { type: Date, default: Date.now() }

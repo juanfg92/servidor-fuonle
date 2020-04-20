@@ -26,7 +26,7 @@ async function uploadDocPrivate(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not contain spaces and empy start with a letter` });
 
     //get extension
     let spl = req.files.file.name.split(".");
@@ -92,7 +92,7 @@ async function getDocPrivate(req, res) {
     }
 
     // route document
-    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + "." + docFound.extension);
+    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id);
     //case docx
     if (docFound.extension == "docx") {
         var options = {
@@ -143,14 +143,30 @@ async function getDocPrivate(req, res) {
 async function deleteDocument(req, res) {
     let documentId = req.body.documentId;
 
+    let docFound = await Doc_public.findOne({ _id: documentId });
+
     Doc_private.findByIdAndRemove(documentId, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
+
+        //remove document from folder
+        let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id);
+
+        fs.unlink(folder, (err) => {
+            if (err) {
+                return res.status(500).send({ message: `Error server: ${err}` })
+            }
+        })
         res.status(200).send({ message: `document ${documentId} has been deleted` })
     })
 }
 
+/**
+ * update document
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function updateDocument(req, res) {
     let update = req.body;
 
@@ -163,7 +179,7 @@ async function updateDocument(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not contain spaces and empy start with a letter` });
 
     //update section
     Doc_private.findOneAndUpdate({ _id: req.body.documentId }, update, (err, document) => {

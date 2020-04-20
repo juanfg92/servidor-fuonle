@@ -61,11 +61,12 @@ api.delete('/delete-private-document', doc_privatectrl.deleteDocument)
 api.put('/update-private-document', doc_privatectrl.updateDocument)
 
 //document_public
-api.post('/upload-document-public', doc_privatectrl.uploadDocPrivate)
-api.get('/get-public-documents', commentctrl.getCommentFromSection)
-api.post('/get-public-documents-filter', doc_privatectrl.getDocPrivate)
-api.delete('/delete-public-document', doc_privatectrl.deleteDocument)
-api.put('/update-public-document', doc_privatectrl.updateDocument)
+api.post('/upload-document-public', doc_publicctrl.uploadDocPublic)
+api.get('/get-public-documents', doc_publicctrl.getDocsPublic)
+api.post('/get-public-documents-filter', doc_publicctrl.getDocsPublicByFilter)
+api.post('/send-public-document', doc_publicctrl.sendDocument)
+api.delete('/delete-public-document', doc_publicctrl.deleteDocument)
+api.put('/update-public-document', doc_publicctrl.updateDocument)
 
 //studyLevel
 api.post('/new-study-level', studyLevelctrl.newStudyLevel)

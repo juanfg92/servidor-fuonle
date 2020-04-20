@@ -43,7 +43,7 @@ async function newCategory(req, res) {
         if (err) res.status(500).send({ message: `Error creating category: ${err}` })
 
         //create category folder
-        let folder = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + category._id);
+        let folder = path.resolve(__dirname + "/../../public_document/" + req.body.studyLevelId + "/" + category._id);
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, { recursive: true });
         }
@@ -83,7 +83,7 @@ function deleteCategory(req, res) {
         })
 
         //remove all containers from the category
-        let pathFile = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId)
+        let pathFile = path.resolve(__dirname + "/../../public_document/" + req.body.studyLevelId + "/" + req.body.categoryId)
         rimraf.sync(pathFile);
 
         res.status(200).send({ message: `category ${categoryId} has been deleted` })

@@ -15,10 +15,6 @@ async function uploadDocPublic(req, res) {
     // Check empty camps
     if (req.body.studyLevelId == null ||
         req.body.studyLevelId == "" ||
-        req.body.categoryId == null ||
-        req.body.categoryId == "" ||
-        req.body.subcategoryId == null ||
-        req.body.subcategoryId == "" ||
         req.body.doc_typeId == null ||
         req.body.doc_typeId == "" ||
         req.body.userId == null ||
@@ -32,7 +28,7 @@ async function uploadDocPublic(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,50}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 50 characters, not empty spaces and empy start with a letter` });
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
 
     // description validation 
     if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
@@ -43,46 +39,67 @@ async function uploadDocPublic(req, res) {
     let ext = spl[spl.length - 1]
 
     //extension validation
-    if (!(/^(docx)$/.test(ext))) return res.status(400).send({ message: `the document extension must be .docx` });
+    if (!(/^(docx|doc|pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.docx|.doc|.pdf)` });
 
     // Save document
-    let doc_public = new Doc_public({
-        _id_studyLevel: req.body.studyLevelId,
-        _id_category: req.body.categoryId,
-        _id_subcategory: req.body.subcategoryId,
-        _id_user: req.body.userId,
-        _id_doc_type: req.body.doc_typeId,
-        documentName: req.body.documentName,
-        description: req.body.description,
-        extension: ext,
-    })
+    let doc_public;
+    if (req.body.categoryId) {
+        doc_public = new Doc_public({
+            _id_studyLevel: req.body.studyLevelId,
+            _id_category: req.body.categoryId,
+            _id_subcategory: req.body.subcategoryId,
+            _id_user: req.body.userId,
+            _id_doc_type: req.body.doc_typeId,
+            documentName: req.body.documentName,
+            description: req.body.description,
+            extension: ext,
+        })
+    } else {
+        doc_public = new Doc_public({
+            _id_studyLevel: req.body.studyLevelId,
+            _id_user: req.body.userId,
+            _id_doc_type: req.body.doc_typeId,
+            documentName: req.body.documentName,
+            description: req.body.description,
+            extension: ext,
+        })
+    }
+
 
     //save document
     doc_public.save((err, doc_public) => {
-        if (err) res.status(500).send({ message: `Error creating the comment: ${err}` })
+        if (err) res.status(500).send({ message: `Error creating the document: ${err}` })
 
         //upload file and move to section folder
         let EDFile = req.files.file
-        let folder = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + req.body.subcategoryId + "/" + doc_public._id);
+        let folder
 
+        // route document
+        if (doc_public._id_category) {
+            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id_category + "/" + doc_public._id_subcategory + "/" + doc_public._id);
+        } else { //case pre-primaria, dont have categories and subcategories
+            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id);
+        }
         EDFile.mv(folder, err => {
-            if (err) return res.status(500).send({ message: err })
+            if (err) {
+                return res.status(500).send({ message: err })
+            }
+            return res.status(200).send({ Document_public: doc_public });
         })
-        return res.status(200).send({ Document_public: doc_public });
+
     })
 }
 
 /**
- * get all public documents
+ * get all documents
  * @param {*} req 
  * @param {*} res 
  */
 async function getDocsPublic(req, res) {
-    let docFound = []
-    let docsSend = []
+    let coincidences = []
     let folder
 
-    //find document
+    //find documents
     try {
         docFound = await Doc_public.find({});
         if (docFound.length == 0) {
@@ -94,50 +111,238 @@ async function getDocsPublic(req, res) {
     docFound.forEach(doc => {
         // route document
         if (doc.categoryId) {
-            folder = path.resolve(__dirname + "/../../private_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id + "." + doc.extension);
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
         } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../private_document/" + doc.studyLevelId + "/" + doc._id + "." + doc.extension);
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
         }
-        //case docx
-        if (docFound.extension == "docx") {
-            var options = {
-                styleMap: [
-                    "b => strong",
-                    "i => i",
-                    "u => u",
-                    "p[style-name='Section Title'] => h1:fresh",
-                    "p[style-name='Subsection Title'] => h2:fresh"
-                ],
-                convertImage: mammoth.images.imgElement(function(image) {
-                    return image.read("base64").then(function(imageBuffer) {
-                        return {
-                            src: "data:" + image.contentType + ";base64," + imageBuffer
-                        };
-                    });
-                })
-            };
-            mammoth.convertToHtml({ path: folder }, options)
-                .then(function(result) {
-                    var html = result.value; // The generated HTML
-                    var messages = result.messages; // Any messages, such as warnings during conversion
-                    docsSend.push(html)
-                })
-                .done();
-        }
-        //case pdf (disable)
-        if (docFound.extension == "pdf") {
 
-            pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
-                // if (err) {
-                //     console.error('Conversion error: ' + err)
-                // } else {
-                //     html = html.split("</head>")[1];
-                //     html = html.replace(/\n/gi, '');
-                //     html = html.replace(/\r/gi, '');
-                //     return res.status(200).send({ resp: html });
-                // }
-                // })
-        }
+        coincidences.push(doc)
     });
-    return res.status(200).send({ resp: html });
+    return res.status(200).send({ Coincidences: coincidences });
 }
+
+/**
+ * get documents by filter
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getDocsPublicByFilter(req, res) {
+    let coincidences = []
+    let folder
+
+    //find documents
+    try {
+        let exp = new RegExp(req.body.documentName, 'i');
+        docFound = await Doc_public.find({
+            _id_doc_type: req.body.doc_typeId,
+            _id_studyLevel: req.body.studyLevelId,
+            _id_category: req.body.categoryId,
+            _id_subcategory: req.body.subcategoryId,
+            documentName: { $regex: exp }
+        });
+
+        if (docFound.length == 0) {
+            return res.status(400).send({ message: `no results have been obtained` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+    docFound.forEach(doc => {
+        // route document
+        if (doc.categoryId) {
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
+        } else { //case pre-primaria, dont have categories and subcategories
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
+        }
+
+        coincidences.push(doc)
+    });
+    return res.status(200).send({ Coincidences: coincidences });
+}
+
+/**
+ * send document by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function sendDocument(req, res) {
+    let folder
+
+    //find documents
+    try {
+        docFound = await Doc_public.findOne({ _id: req.body.documentId });
+
+        if (!docFound) {
+            return res.status(400).send({ message: `no results have been obtained` });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: `Error server: ${err}` });
+    }
+
+    if (docFound.categoryId) {
+        folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
+    } else { //case pre-primaria, dont have categories and subcategories
+        folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
+    }
+
+    return res.status(200).sendFile({ Document: folder })
+}
+
+/**
+ * delete document
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteDocument(req, res) {
+    let documentId = req.body.documentId;
+
+    let docFound = await Doc_public.findOne({ _id: documentId });
+
+    Doc_private.findByIdAndRemove(documentId, (err) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+
+        //remove document from folder
+        if (docFound.categoryId) {
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
+        } else { //case pre-primaria, dont have categories and subcategories
+            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
+        }
+
+        fs.unlink(folder, (err) => {
+            if (err) {
+                return res.status(500).send({ message: `Error server: ${err}` })
+            }
+        })
+        res.status(200).send({ message: `document ${documentId} has been deleted` })
+    })
+}
+
+/**
+ * update document
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function updateDocument(req, res) {
+    let update = req.body;
+
+    // Check empty camps
+    if (req.body.studyLevelId == null ||
+        req.body.studyLevelId == "" ||
+        req.body.doc_typeId == null ||
+        req.body.doc_typeId == "" ||
+        req.body.userId == null ||
+        req.body.userId == "" ||
+        req.body.documentName == null ||
+        req.body.documentName == "" ||
+        req.body.description == null ||
+        req.body.description == "") {
+        return res.status(500).send({ message: `Error creating the document: empty camps` })
+    }
+
+    // documentName validation 
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
+
+    // description validation 
+    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
+
+    //update section
+    Doc_public.findOneAndUpdate({ _id: req.body.documentId }, update, (err, document) => {
+        if (err) {
+            res.status(500).send({ message: `Error server: ${err}` })
+        }
+        res.status(200).send({ Document: document })
+    })
+}
+
+module.exports = {
+    uploadDocPublic,
+    getDocsPublic,
+    getDocsPublicByFilter,
+    sendDocument,
+    deleteDocument,
+    updateDocument
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //case docx
+// if (docFound.extension == "docx") {
+//     var options = {
+//         styleMap: [
+//             "b => strong",
+//             "i => i",
+//             "u => u",
+//             "p[style-name='Section Title'] => h1:fresh",
+//             "p[style-name='Subsection Title'] => h2:fresh"
+//         ],
+//         convertImage: mammoth.images.imgElement(function(image) {
+//             return image.read("base64").then(function(imageBuffer) {
+//                 return {
+//                     src: "data:" + image.contentType + ";base64," + imageBuffer
+//                 };
+//             });
+//         })
+//     };
+//     mammoth.convertToHtml({ path: folder }, options)
+//         .then(function(result) {
+//             var html = result.value; // The generated HTML
+//             var messages = result.messages; // Any messages, such as warnings during conversion
+//             docsSend.push(html)
+//         })
+//         .done();
+// }
+// //case pdf (disable)
+// if (docFound.extension == "pdf") {
+
+//     pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
+//         // if (err) {
+//         //     console.error('Conversion error: ' + err)
+//         // } else {
+//         //     html = html.split("</head>")[1];
+//         //     html = html.replace(/\n/gi, '');
+//         //     html = html.replace(/\r/gi, '');
+//         //     return res.status(200).send({ resp: html });
+//         // }
+//         // })
+// }

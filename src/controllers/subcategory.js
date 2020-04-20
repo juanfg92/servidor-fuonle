@@ -45,7 +45,7 @@ async function newSubcategory(req, res) {
         if (err) res.status(500).send({ message: `Error creating subcategory: ${err}` })
 
         //create subcategory folder
-        let folder = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + subcategory._id);
+        let folder = path.resolve(__dirname + "/../../public_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + subcategory._id);
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, { recursive: true });
         }
@@ -79,7 +79,7 @@ function deleteSubcategory(req, res) {
         }
 
         //remove all containers from the subcategory
-        let pathFile = path.resolve(__dirname + "/../../private_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + req.body.subcategoryId)
+        let pathFile = path.resolve(__dirname + "/../../public_document/" + req.body.studyLevelId + "/" + req.body.categoryId + "/" + req.body.subcategoryId)
         rimraf.sync(pathFile);
 
         res.status(200).send({ message: `subcategory ${subcategoryId} has been deleted` })
