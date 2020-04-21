@@ -5,7 +5,6 @@ const Schema = mongoose.Schema
 
 const RolSchema = Schema({
     name: { type: String, require: true },
-    category: { type: String, enum: ['admin', 'user'], require: true },
     description: String
 })
 

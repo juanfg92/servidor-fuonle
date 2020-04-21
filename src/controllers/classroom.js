@@ -65,6 +65,22 @@ async function newClassroom(req, res) {
 }
 
 /**
+ * check if the user is an administrator
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function checkAdmin(req, res) {
+    Classroom.findOne({ _id: req.body.userId }, (err, classroom) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (classroom.administrators.indexof(req.body.userId) > -1) {
+            return res.status(200).send(true)
+        } else {
+            return res.status(200).send(false)
+        }
+    })
+}
+
+/**
  * get all classrooms
  * @param {*} req 
  * @param {*} res 
@@ -192,6 +208,7 @@ async function updateClassroom(req, res) {
 
 module.exports = {
     newClassroom,
+    checkAdmin,
     getClassrooms,
     getClassroomsByClassroomName,
     getClassroomById,

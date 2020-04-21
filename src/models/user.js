@@ -10,7 +10,7 @@ const UserSchema = new Schema({
     password: { type: String, select: false, required: true },
     userName: { type: String, unique: true, lowercase: true, required: true },
     avatar: String,
-    rol_id: { type: String, required: true },
+    rol_id: { type: String, default: "user" },
     signupDate: { type: Date, default: Date.now() },
     lastLogin: Date
 })

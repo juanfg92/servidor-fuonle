@@ -14,6 +14,8 @@ const categoryctrl = require('../controllers/category')
 const subcategoryctrl = require('../controllers/subcategory')
 const doc_typectrl = require('../controllers/doc_type')
 const incidencectrl = require('../controllers/Incidence')
+const suggestionctrl = require('../controllers/suggestion')
+const rolctrl = require('../controllers/rol')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -36,6 +38,7 @@ api.put('/update-user', userctrl.updateUser)
 
 //classroom
 api.post('/new-classroom', classroomctrl.newClassroom)
+api.post('/check-admin-classroom', classroomctrl.checkAdmin)
 api.get('/get-classrooms', classroomctrl.getClassrooms)
 api.get('/get-classrooms-by-classroomname', classroomctrl.getClassroomsByClassroomName)
 api.get('/get-classroom-by-id', classroomctrl.getClassroomById)
@@ -95,19 +98,28 @@ api.put('/update-doctype', doc_typectrl.updateDoc_type)
 
 //incidence
 api.post('/new-incidence', incidencectrl.newIncidence)
-api.get('/get-incidents-unprocess', incidencectrl.getIncidentsUnprocessed)
-api.get('/get-incidents-process', incidencectrl.getIncidentsProcessed)
+api.get('/get-incidents-unprocessed', incidencectrl.getIncidentsUnprocessed)
+api.get('/get-incidents-processed', incidencectrl.getIncidentsProcessed)
 api.get('/get-all-incidents', incidencectrl.getAllIncidents)
 api.delete('/delete-incidence', incidencectrl.deleteIncidence)
 api.put('/update-incidence', incidencectrl.updateIncidence)
 
-//message
-
+//suggestion
+api.post('/new-suggestion', suggestionctrl.newSuggestion)
+api.get('/get-suggestions-unprocessed', suggestionctrl.getSuggestionsUnprocessed)
+api.get('/get-suggestions-processed', suggestionctrl.getSuggestionsProcessed)
+api.get('/get-all-suggestions', suggestionctrl.getAllSuggestions)
+api.delete('/delete-suggestion', suggestionctrl.deleteSuggestion)
+api.put('/update-suggestion', suggestionctrl.updateSuggestion)
 
 //rol
+api.post('/new-rol', rolctrl.newRol)
+api.post('/get-rol-by-id', rolctrl.getRolById)
+api.get('/get-all-rols', rolctrl.getAllrols)
+api.delete('/delete-rol', rolctrl.deleteRol)
+api.put('/update-rol', rolctrl.updateRol)
 
-
-//suggestion
+//message
 
 
 module.exports = api
