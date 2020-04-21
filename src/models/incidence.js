@@ -7,6 +7,7 @@ const IncidenceSchema = Schema({
     _id_user: { type: String, require: true },
     _id_document: { type: String, require: true },
     description: { type: String, require: true },
+    processed: { type: Boolean, default: false },
     creationDate: { type: Date, default: Date.now() },
 })
 

@@ -21,7 +21,7 @@ async function newComment(req, res) {
     }
 
     // comment validation 
-    if (req.body.text.length > 256 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 256 characters` });
+    if (req.body.text.length > 512 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 512 characters` });
 
     // Save comment
     let comment = new Comment({
@@ -71,7 +71,7 @@ async function updateComment(req, res) {
     }
 
     // comment validation 
-    if (req.body.text.length > 256 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 256 characters` });
+    if (req.body.text.length > 512 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 512 characters` });
 
     //update comment
     Comment.findOneAndUpdate({ _id: req.body.commentId }, update, (err, comment) => {

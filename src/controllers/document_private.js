@@ -77,7 +77,7 @@ async function getDocumentsFromSection(req, res) {
  * @param {*} req 
  * @param {*} res 
  */
-async function getDocPrivate(req, res) {
+async function sendDocPrivate(req, res) {
     let documentId = req.body.documentId
     let docFound
 
@@ -93,46 +93,7 @@ async function getDocPrivate(req, res) {
 
     // route document
     let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id);
-    //case docx
-    if (docFound.extension == "docx") {
-        var options = {
-            styleMap: [
-                "b => strong",
-                "i => i",
-                "u => u",
-                "p[style-name='Section Title'] => h1:fresh",
-                "p[style-name='Subsection Title'] => h2:fresh"
-            ],
-            convertImage: mammoth.images.imgElement(function(image) {
-                return image.read("base64").then(function(imageBuffer) {
-                    return {
-                        src: "data:" + image.contentType + ";base64," + imageBuffer
-                    };
-                });
-            })
-        };
-        mammoth.convertToHtml({ path: folder }, options)
-            .then(function(result) {
-                var html = result.value; // The generated HTML
-                var messages = result.messages; // Any messages, such as warnings during conversion
-                return res.status(200).send({ resp: html, message: messages });
-            })
-            .done();
-    }
-    //case pdf (disable)
-    if (docFound.extension == "pdf") {
-
-        pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
-            // if (err) {
-            //     console.error('Conversion error: ' + err)
-            // } else {
-            //     html = html.split("</head>")[1];
-            //     html = html.replace(/\n/gi, '');
-            //     html = html.replace(/\r/gi, '');
-            //     return res.status(200).send({ resp: html });
-            // }
-            // })
-    }
+    return res.status(200).sendFile(folder)
 }
 
 /**
@@ -196,7 +157,63 @@ async function updateDocument(req, res) {
 module.exports = {
     uploadDocPrivate,
     getDocumentsFromSection,
-    getDocPrivate,
+    sendDocPrivate,
     deleteDocument,
     updateDocument
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //case docx
+// if (docFound.extension == "docx") {
+//     var options = {
+//         styleMap: [
+//             "b => strong",
+//             "i => i",
+//             "u => u",
+//             "p[style-name='Section Title'] => h1:fresh",
+//             "p[style-name='Subsection Title'] => h2:fresh"
+//         ],
+//         convertImage: mammoth.images.imgElement(function(image) {
+//             return image.read("base64").then(function(imageBuffer) {
+//                 return {
+//                     src: "data:" + image.contentType + ";base64," + imageBuffer
+//                 };
+//             });
+//         })
+//     };
+//     mammoth.convertToHtml({ path: folder }, options)
+//         .then(function(result) {
+//             var html = result.value; // The generated HTML
+//             var messages = result.messages; // Any messages, such as warnings during conversion
+//             return res.status(200).send({ resp: html, message: messages });
+//         })
+//         .done();
+// }
+// //case pdf (disable)
+// if (docFound.extension == "pdf") {
+
+//     pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
+//         // if (err) {
+//         //     console.error('Conversion error: ' + err)
+//         // } else {
+//         //     html = html.split("</head>")[1];
+//         //     html = html.replace(/\n/gi, '');
+//         //     html = html.replace(/\r/gi, '');
+//         //     return res.status(200).send({ resp: html });
+//         // }
+//         // })
+// }

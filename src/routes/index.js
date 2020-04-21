@@ -13,6 +13,7 @@ const studyLevelctrl = require('../controllers/study_level')
 const categoryctrl = require('../controllers/category')
 const subcategoryctrl = require('../controllers/subcategory')
 const doc_typectrl = require('../controllers/doc_type')
+const incidencectrl = require('../controllers/Incidence')
 
 // api.get('/product/:productId', productControllers.getProduct)
 // api.get('/products', auth, productControllers.getProducts) //con token
@@ -55,7 +56,7 @@ api.put('/update-comment', commentctrl.updateComment)
 
 //document_private
 api.post('/upload-document-private', doc_privatectrl.uploadDocPrivate)
-api.post('/get-private-document', doc_privatectrl.getDocPrivate)
+api.post('/send-private-document', doc_privatectrl.sendDocPrivate)
 api.post('/get-documents-from-section', doc_privatectrl.getDocumentsFromSection)
 api.delete('/delete-private-document', doc_privatectrl.deleteDocument)
 api.put('/update-private-document', doc_privatectrl.updateDocument)
@@ -93,7 +94,12 @@ api.delete('/delete-doctype', doc_typectrl.deleteDoc_type)
 api.put('/update-doctype', doc_typectrl.updateDoc_type)
 
 //incidence
-
+api.post('/new-incidence', incidencectrl.newIncidence)
+api.get('/get-incidents-unprocess', incidencectrl.getIncidentsUnprocessed)
+api.get('/get-incidents-process', incidencectrl.getIncidentsProcessed)
+api.get('/get-all-incidents', incidencectrl.getAllIncidents)
+api.delete('/delete-incidence', incidencectrl.deleteIncidence)
+api.put('/update-incidence', incidencectrl.updateIncidence)
 
 //message
 
