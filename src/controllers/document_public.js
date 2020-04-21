@@ -98,6 +98,7 @@ async function uploadDocPublic(req, res) {
 async function getDocsPublic(req, res) {
     let coincidences = []
     let folder
+    let docFound
 
     //find documents
     try {
@@ -118,7 +119,7 @@ async function getDocsPublic(req, res) {
 
         coincidences.push(doc)
     });
-    return res.status(200).send({ Coincidences: coincidences });
+    return res.status(200).send({ Documents: coincidences });
 }
 
 /**
@@ -129,17 +130,45 @@ async function getDocsPublic(req, res) {
 async function getDocsPublicByFilter(req, res) {
     let coincidences = []
     let folder
+    let docFound
+    let documentName = req.body.documentName
+    let studyLevelId = req.body.studyLevelId
+    let categoryId = req.body.categoryId
+    let subcategoryId = req.body.subcategoryId
+    let doc_type = req.body.doc_typeId
 
     //find documents
     try {
-        let exp = new RegExp(req.body.documentName, 'i');
-        docFound = await Doc_public.find({
-            _id_doc_type: req.body.doc_typeId,
-            _id_studyLevel: req.body.studyLevelId,
-            _id_category: req.body.categoryId,
-            _id_subcategory: req.body.subcategoryId,
-            documentName: { $regex: exp }
-        });
+        let exp = new RegExp(documentName, 'i')
+        if (!categoryId && !doc_type) {
+            docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, documentName: { $regex: exp } })
+        } else if (categoryId && !subcategoryId && !doc_type) {
+            docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_category: categoryId, documentName: { $regex: exp } })
+        } else if (subcategoryId && !doc_type) {
+            docFound = await Doc_public.find({
+                _id_studyLevel: studyLevelId,
+                _id_category: categoryId,
+                _id_subcategory: subcategoryId,
+                documentName: { $regex: exp }
+            })
+        } else if (!categoryId && doc_type) {
+            docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_doc_type: req.body.doc_typeId, documentName: { $regex: exp } })
+        } else if (categoryId && !subcategoryId && doc_type) {
+            docFound = await Doc_public.find({
+                _id_studyLevel: studyLevelId,
+                _id_category: categoryId,
+                _id_doc_type: req.body.doc_typeId,
+                documentName: { $regex: exp }
+            })
+        } else if (subcategoryId && doc_type) {
+            docFound = await Doc_public.find({
+                _id_studyLevel: studyLevelId,
+                _id_category: categoryId,
+                _id_subcategory: subcategoryId,
+                _id_doc_type: req.body.doc_typeId,
+                documentName: { $regex: exp }
+            })
+        }
 
         if (docFound.length == 0) {
             return res.status(400).send({ message: `no results have been obtained` });
@@ -167,8 +196,8 @@ async function getDocsPublicByFilter(req, res) {
  */
 async function sendDocument(req, res) {
     let folder
-
-    //find documents
+    let docFound
+        //find documents
     try {
         docFound = await Doc_public.findOne({ _id: req.body.documentId });
 
@@ -179,13 +208,17 @@ async function sendDocument(req, res) {
         return res.status(500).send({ message: `Error server: ${err}` });
     }
 
-    if (docFound.categoryId) {
-        folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
-    } else { //case pre-primaria, dont have categories and subcategories
-        folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
+    if (docFound) {
+        if (docFound._id_category) {
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id);
+        } else { //case pre-primaria, dont have categories and subcategories
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id);
+        }
+        return res.status(200).sendFile(folder)
+    } else {
+        return res.status(400).send({ message: `Error server` })
     }
 
-    return res.status(200).sendFile({ Document: folder })
 }
 
 /**
@@ -195,19 +228,19 @@ async function sendDocument(req, res) {
  */
 async function deleteDocument(req, res) {
     let documentId = req.body.documentId;
-
+    let folder
     let docFound = await Doc_public.findOne({ _id: documentId });
 
-    Doc_private.findByIdAndRemove(documentId, (err) => {
+    Doc_public.findByIdAndRemove(documentId, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
 
         //remove document from folder
-        if (docFound.categoryId) {
-            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
+        if (docFound._id_category) {
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id);
         } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id);
         }
 
         fs.unlink(folder, (err) => {
@@ -228,17 +261,13 @@ async function updateDocument(req, res) {
     let update = req.body;
 
     // Check empty camps
-    if (req.body.studyLevelId == null ||
-        req.body.studyLevelId == "" ||
-        req.body.doc_typeId == null ||
-        req.body.doc_typeId == "" ||
-        req.body.userId == null ||
-        req.body.userId == "" ||
+    if (req.body.documentId == null ||
+        req.body.documentId == "" ||
         req.body.documentName == null ||
         req.body.documentName == "" ||
         req.body.description == null ||
         req.body.description == "") {
-        return res.status(500).send({ message: `Error creating the document: empty camps` })
+        return res.status(500).send({ message: `Error updating the document: empty camps` })
     }
 
     // documentName validation 

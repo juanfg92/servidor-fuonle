@@ -8,7 +8,7 @@ const app = require("./app");
 
 
 mongoose.connect(
-    config.db, { useCreateIndex: true, useNewUrlParser: true },
+    config.db, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true },
     (err, res) => {
         if (err) {
             return console.log(`Failed to connect to database: ${err}`);
