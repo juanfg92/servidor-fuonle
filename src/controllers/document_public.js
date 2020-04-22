@@ -1,6 +1,7 @@
 'use strict'
 
 const Doc_public = require('../models/document_public')
+const parameters = require('../../parameters')
 const path = require("path")
 const fs = require("fs")
 const mammoth = require("mammoth")
@@ -28,10 +29,10 @@ async function uploadDocPublic(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPublicName.test(req.body.documentName))) return res.status(400).send({ message: parameters.errMessage.docPublicName });
 
     // description validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPublicDescription.test(req.body.description))) return res.status(400).send({ message: parameters.errMessage.docPublicDescription });
 
 
     //get extension
@@ -271,10 +272,10 @@ async function updateDocument(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPublicName.test(req.body.documentName))) return res.status(400).send({ message: parameters.errMessage.docPublicName });
 
     // description validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,128}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 128 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPublicDescription.test(req.body.description))) return res.status(400).send({ message: parameters.errMessage.docPublicDescription });
 
     //update section
     Doc_public.findOneAndUpdate({ _id: req.body.documentId }, update, (err, document) => {

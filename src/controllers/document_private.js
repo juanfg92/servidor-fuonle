@@ -1,6 +1,7 @@
 'use strict'
 
 const Doc_private = require('../models/document_private')
+const parameters = require('../../parameters')
 const path = require("path")
 const fs = require("fs")
 const mammoth = require("mammoth")
@@ -26,7 +27,7 @@ async function uploadDocPrivate(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPrivateName.test(req.body.documentName))) return res.status(400).send({ message: parameters.errMessage.docPrivateName });
 
     //get extension
     let spl = req.files.file.name.split(".");
@@ -140,7 +141,7 @@ async function updateDocument(req, res) {
     }
 
     // documentName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 /*-+,.-_!"'^`{}<>ºª%&()ñÑü]{2,70}$/.test(req.body.documentName))) return res.status(400).send({ message: `the document name must be between 2 and 70 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.docPrivateName.test(req.body.documentName))) return res.status(400).send({ message: parameters.errMessage.docPrivateName });
 
     //update section
     Doc_private.findOneAndUpdate({ _id: req.body.documentId }, update, (err, document) => {

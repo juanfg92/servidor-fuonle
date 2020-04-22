@@ -2,6 +2,7 @@
 
 const User = require('../models/user')
 const serviceJwt = require('../services/jwt')
+const parameters = require('../../parameters')
 
 /**
  * Save user
@@ -22,7 +23,7 @@ async function signUp(req, res) {
     }
 
     // Email validation 
-    if (!(/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/.test(req.body.email))) return res.status(400).send({ message: "Email not valid" });
+    if (!(parameters.expReg.userEmail.test(req.body.email))) return res.status(400).send({ message: parameters.errMessage.userEmail });
 
     // Password validation between 4 and 10 characters
     if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
@@ -30,7 +31,7 @@ async function signUp(req, res) {
     });
 
     // userName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9ñÑü]{2,19}$/.test(req.body.userName))) return res.status(400).send({ message: `the user name must be between 2 and 20 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.userName.test(req.body.userName))) return res.status(400).send({ message: parameters.errMessage.userName });
 
     // Check duplication email
     try {

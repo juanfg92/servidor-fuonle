@@ -1,6 +1,7 @@
 'use strict'
 
 const Rol = require('../models/rol')
+const parameters = require('../../parameters')
 
 /**
  * new rol
@@ -17,10 +18,10 @@ async function newRol(req, res) {
     }
 
     //name validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,25}$/.test(req.body.name))) return res.status(400).send({ message: `the name must be between 2 and 25 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.rolName.test(req.body.name))) return res.status(400).send({ message: parameters.errMessage.rolName });
 
     //description validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,256}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 256 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.rolDescription.test(req.body.description))) return res.status(400).send({ message: parameters.errMessage.rolDescription });
 
     // Save rol
     let rol = new Rol({
@@ -93,10 +94,10 @@ async function updateRol(req, res) {
     }
 
     //name validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,25}$/.test(req.body.name))) return res.status(400).send({ message: `the name must be between 2 and 25 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.rolName.test(req.body.name))) return res.status(400).send({ message: parameters.errMessage.rolName });
 
     //description validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,256}$/.test(req.body.description))) return res.status(400).send({ message: `the description must be between 2 and 256 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.rolDescription.test(req.body.description))) return res.status(400).send({ message: parameters.errMessage.rolDescription });
 
     //description validation 
     if (req.body.description.length > 512 || req.body.description.length < 1) return res.status(400).send({ message: `the rol must be between 1 and 512 characters` });

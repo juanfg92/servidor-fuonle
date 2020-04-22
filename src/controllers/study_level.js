@@ -3,6 +3,7 @@
 const StudyLevel = require('../models/study_level')
 const Category = require('../models/category')
 const Subcategory = require('../models/subcategory')
+const parameters = require('../../parameters')
 const path = require("path");
 const fs = require("fs");
 var rimraf = require("rimraf");
@@ -20,7 +21,7 @@ async function newStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü.]{2,50}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.studyLevelName.test(req.body.studyLevelName))) return res.status(400).send({ message: parameters.errMessage.studyLevelName });
 
     // Check duplication studyLevel
     try {
@@ -106,7 +107,7 @@ async function updateStudyLevel(req, res) {
     }
 
     // studyLevelName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü.]{2,50}$/.test(req.body.studyLevelName))) return res.status(400).send({ message: `the study level name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.studyLevelName.test(req.body.studyLevelName))) return res.status(400).send({ message: parameters.errMessage.studyLevelName });
 
     // Check duplication studyLevel
     try {

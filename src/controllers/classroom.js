@@ -4,6 +4,7 @@ const Classroom = require('../models/classroom')
 const Section = require('../models/section')
 const Doc_private = require('../models/document_private')
 const Comment = require('../models/comment')
+const parameters = require('../../parameters')
 const path = require("path");
 const fs = require("fs");
 var rimraf = require("rimraf");
@@ -15,8 +16,8 @@ var rimraf = require("rimraf");
  */
 async function newClassroom(req, res) {
     // Check empty camps
-    if (req.body._id_user == null ||
-        req.body._id_user == "" ||
+    if (req.body.userId == null ||
+        req.body.userId == "" ||
         req.body.classroomName == null ||
         req.body.classroomName == "" ||
         req.body.password == null ||
@@ -24,8 +25,8 @@ async function newClassroom(req, res) {
         return res.status(500).send({ message: `Error creating the class room: empty camps` })
     }
 
-    // classroom validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,50}$/.test(req.body.classroomName))) return res.status(400).send({ message: `the class room name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    // classroomName validation 
+    if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.classroomName });
 
     // Password validation between 4 and 10 characters
     if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
@@ -45,10 +46,10 @@ async function newClassroom(req, res) {
 
     // Save classroom
     let classroom = new Classroom({
-        _id_user: req.body._id_user,
+        userId: req.body.userId,
         password: req.body.password,
         classroomName: req.body.classroomName,
-        administrators: { admin: req.body._id_user }
+        administrators: req.body.userId
     })
 
     classroom.avatar = classroom.gravatar();
@@ -65,14 +66,31 @@ async function newClassroom(req, res) {
 }
 
 /**
+ * add user as administrator
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function addAdmin(req, res) {
+
+    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
+    classroom.administrators.push(req.body.userId)
+
+    Classroom.findOneAndUpdate(req.body.classroomId, classroom, (err, classroom) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+        return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
+    })
+}
+
+/**
  * check if the user is an administrator
  * @param {*} req 
  * @param {*} res 
  */
 async function checkAdmin(req, res) {
-    Classroom.findOne({ _id: req.body.userId }, (err, classroom) => {
+    Classroom.findOne({ _id: req.body.classroomId }, (err, classroom) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (classroom.administrators.indexof(req.body.userId) > -1) {
+        if (classroom.administrators.indexOf(req.body.userId) > -1) {
             return res.status(200).send(true)
         } else {
             return res.status(200).send(false)
@@ -181,8 +199,8 @@ async function updateClassroom(req, res) {
         message: `the password must be between 4 and 10 characters`
     });
 
-    // classroom validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,50}$/.test(req.body.classroomName))) return res.status(400).send({ message: `the class room name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    // classroomName validation 
+    if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
 
     // Check duplication classroomName
     try {
@@ -209,6 +227,7 @@ async function updateClassroom(req, res) {
 module.exports = {
     newClassroom,
     checkAdmin,
+    addAdmin,
     getClassrooms,
     getClassroomsByClassroomName,
     getClassroomById,

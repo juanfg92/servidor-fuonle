@@ -1,6 +1,7 @@
 'use strict'
 
 const Doc_type = require('../models/doc_type')
+const parameters = require('../../parameters')
 
 /**
  * new Doc_type
@@ -15,7 +16,7 @@ async function newDoc_type(req, res) {
     }
 
     // doc_typeName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,50}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.docTypeName.test(req.body.doc_typeName))) return res.status(400).send({ message: parameters.errMessage.docTypeName });
 
     // Check duplication doc_type
     try {
@@ -84,7 +85,7 @@ async function updateDoc_type(req, res) {
     }
 
     // doc_typeName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü]{2,50}$/.test(req.body.doc_typeName))) return res.status(400).send({ message: `the document type name must be between 2 and 50 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.docTypeName.test(req.body.doc_typeName))) return res.status(400).send({ message: parameters.errMessage.docTypeName });
 
     // Check duplication doc_type
     try {

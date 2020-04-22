@@ -1,6 +1,7 @@
 'use strict'
 
 const Suggestion = require('../models/suggestion')
+const parameters = require('../../parameters')
 
 /**
  * new suggestion
@@ -19,7 +20,7 @@ async function newSuggestion(req, res) {
     }
 
     //tittle validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,70}$/.test(req.body.tittle))) return res.status(400).send({ message: `the tittle must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.suggestionTittle.test(req.body.tittle))) return res.status(400).send({ message: parameters.errMessage.suggestionTittle });
 
     // description validation 
     if (req.body.description.length > 512 || req.body.description.length < 1) return res.status(400).send({ message: `the description must be between 1 and 512 characters` });
@@ -109,7 +110,7 @@ async function updateSuggestion(req, res) {
     }
 
     //tittle validation
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑ][A-Za-zÁÉÍÓÚáéíóú0-9 ,ñÑü]{2,70}$/.test(req.body.tittle))) return res.status(400).send({ message: `the tittle must be between 2 and 70 characters, not empty spaces and empy start with a letter` });
+    if (!(parameters.expReg.suggestionTittle.test(req.body.tittle))) return res.status(400).send({ message: parameters.errMessage.suggestionTittle });
 
 
     //description validation 

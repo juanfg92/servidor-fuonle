@@ -2,6 +2,7 @@
 
 const Category = require('../models/category')
 const Subcategory = require('../models/subcategory')
+const parameters = require('../../parameters')
 const path = require("path");
 const fs = require("fs");
 var rimraf = require("rimraf");
@@ -21,7 +22,7 @@ async function newCategory(req, res) {
     }
 
     // categoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü.]{2,60}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 60 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.categoryName.test(req.body.categoryName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
 
     // Check duplication category
     try {
@@ -109,7 +110,7 @@ async function updateCategory(req, res) {
     }
 
     // categoryName validation 
-    if (!(/^[A-Za-zÁÉÍÓÚáéíóúñÑü][A-Za-zÁÉÍÓÚáéíóú0-9 -\x41\x42ñÑü.]{2,60}$/.test(req.body.categoryName))) return res.status(400).send({ message: `the category name must be between 2 and 60 characters, not contain spaces and empy start with a letter` });
+    if (!(parameters.expReg.categoryName.test(req.body.categoryName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
 
     // Check duplication category
     try {
