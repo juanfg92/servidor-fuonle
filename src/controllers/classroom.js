@@ -83,6 +83,31 @@ async function addAdmin(req, res) {
 }
 
 /**
+ * delete user as administrator
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteAdmin(req, res) {
+
+    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
+    if (classroom.administrators.length > 1) {
+        let index = classroom.administrators.indexOf(req.body.userId);
+        if (index > -1) {
+            classroom.administrators.splice(index, 1);
+        }
+    } else {
+        res.status(200).send({ message: `there must be at least one admin` })
+    }
+
+
+    Classroom.findOneAndUpdate(req.body.classroomId, classroom, (err, classroom) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+        return res.status(200).send({ message: `user: ${req.body.userId} deleted as administrator` })
+    })
+}
+
+/**
  * check if the user is an administrator
  * @param {*} req 
  * @param {*} res 
@@ -228,6 +253,7 @@ module.exports = {
     newClassroom,
     checkAdmin,
     addAdmin,
+    deleteAdmin,
     getClassrooms,
     getClassroomsByClassroomName,
     getClassroomById,

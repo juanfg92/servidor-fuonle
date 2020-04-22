@@ -20,6 +20,7 @@ const study_levelRoutes = require("./src/routes/study_level");
 const subcategoryRoutes = require("./src/routes/subcategory");
 const suggestionRoutes = require("./src/routes/suggestion");
 const userRoutes = require("./src/routes/user");
+const messageRoutes = require("./src/routes/message");
 
 /** Middlewares **/
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -40,5 +41,6 @@ app.use('/api-aprende-para-crecer', study_levelRoutes)
 app.use('/api-aprende-para-crecer', subcategoryRoutes)
 app.use('/api-aprende-para-crecer', suggestionRoutes)
 app.use('/api-aprende-para-crecer', userRoutes)
+app.use('/api-aprende-para-crecer', messageRoutes)
 
 module.exports = app;
