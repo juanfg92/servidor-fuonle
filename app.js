@@ -21,6 +21,7 @@ const subcategoryRoutes = require("./src/routes/subcategory");
 const suggestionRoutes = require("./src/routes/suggestion");
 const userRoutes = require("./src/routes/user");
 const messageRoutes = require("./src/routes/message");
+const chatRoutes = require("./src/routes/chat");
 
 /** Middlewares **/
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -42,5 +43,6 @@ app.use('/api-aprende-para-crecer', subcategoryRoutes)
 app.use('/api-aprende-para-crecer', suggestionRoutes)
 app.use('/api-aprende-para-crecer', userRoutes)
 app.use('/api-aprende-para-crecer', messageRoutes)
+app.use('/api-aprende-para-crecer', chatRoutes)
 
 module.exports = app;
