@@ -17,8 +17,8 @@ async function signUp(req, res) {
         req.body.password == "" ||
         req.body.userName == null ||
         req.body.userName == "" ||
-        req.body.rol_id == null ||
-        req.body.rol_id == "") {
+        req.body.rolId == null ||
+        req.body.rolId == "") {
         return res.status(500).send({ message: `Error creating the user: empty camps` })
     }
 
@@ -60,7 +60,7 @@ async function signUp(req, res) {
         email: req.body.email,
         password: req.body.password,
         userName: req.body.userName,
-        rol_id: req.body.rol_id,
+        _id_rol: req.body.rolId,
     })
 
     user.avatar = user.gravatar();
@@ -173,8 +173,8 @@ async function updateUser(req, res) {
         req.body.password == "" ||
         req.body.userName == null ||
         req.body.userName == "" ||
-        req.body.rol_id == null ||
-        req.body.rol_id == "") {
+        req.body.rolId == null ||
+        req.body.rolId == "") {
         return res.status(500).send({ message: `Error updating the user: empty camps` })
     }
 
