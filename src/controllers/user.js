@@ -47,7 +47,8 @@ async function signUp(req, res) {
     // Check duplication userName
     try {
         let exp = new RegExp(req.body.userName, 'i');
-        let userFound = await User.findOne({ userName: { $regex: exp } });
+        let name = req.body.userName
+        let userFound = await User.findOne({ userName: req.body.userName });
         if (userFound) {
             return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
         }
@@ -62,13 +63,12 @@ async function signUp(req, res) {
         userName: req.body.userName,
         _id_rol: req.body.rolId,
     })
-
+    user.token = serviceJwt.createToken(user);
     user.avatar = user.gravatar();
 
     user.save((err, user) => {
         if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
         return res.status(200).send({
-            token: serviceJwt.createToken(user),
             user: user.id
         });
     })
@@ -84,17 +84,38 @@ function signIn(req, res) {
         if (err) return res.status(500).send({ message: err })
         if (!user) return res.status(404).send({ message: `wrong username or password` })
 
-        return user.comparePassword(req.body.password, (err, isMatch) => {
+        //compare candidate password
+        user.comparePassword(req.body.password, (err, isMatch) => {
             if (err) return res.status(500).send({ message: `Error server: ${err}` })
-            if (!isMatch) return res.status(404).send({ message: `wrong username or password` })
+            if (!isMatch) {
+                return res.status(404).send({ message: `wrong username or password` })
+            } else {
+                user.token = serviceJwt.createToken(user)
 
-            req.user = user
-            res.status(200).send({
-                message: 'Te has logueado correctamente',
-                token: serviceJwt.createToken(user)
-            })
+                //update userToken
+                User.findOneAndUpdate({ _id: user._id }, user, (err) => {
+                    if (err) {
+                        return res.status(500).send({ message: `Error server: ${err}` })
+                    }
+                })
+                res.status(200).send(user)
+            }
         })
-    }).select('_id email +password');
+    }).select('+password');
+}
+
+/**
+ * find user by email
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUserByJwt(req, res) {
+    let userJwt = req.body.jwt;
+    User.findOne({ token: userJwt }, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!user) return res.status(404).send(false)
+        return res.status(200).send({ user: user })
+    })
 }
 
 /**
@@ -221,6 +242,7 @@ async function updateUser(req, res) {
 module.exports = {
     signUp,
     signIn,
+    getUserByJwt,
     getUsers,
     getUserByEmail,
     getUserByUserName,

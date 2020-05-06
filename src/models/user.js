@@ -9,6 +9,7 @@ const UserSchema = new Schema({
     email: { type: String, unique: true, lowercase: true, required: true },
     password: { type: String, select: false, required: true },
     userName: { type: String, unique: true, lowercase: true, required: true },
+    token: String,
     avatar: String,
     _id_rol: { type: String, default: "user" },
     signupDate: { type: Date, default: Date.now() },
@@ -30,19 +31,19 @@ UserSchema.pre('save', function(next) {
     })
 })
 
-UserSchema.pre('findOneAndUpdate', function(next) {
+// UserSchema.pre('findOneAndUpdate', function(next) {
 
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) return next(err)
+//     bcrypt.genSalt(10, (err, salt) => {
+//         if (err) return next(err)
 
-        bcrypt.hash(this._update.password, salt, null, (err, hash) => {
-            if (err) return next(err)
+//         bcrypt.hash(this._update.password, salt, null, (err, hash) => {
+//             if (err) return next(err)
 
-            this._update.password = hash
-            next()
-        })
-    })
-})
+//             this._update.password = hash
+//             next()
+//         })
+//     })
+// })
 
 UserSchema.methods.gravatar = function(size) {
     if (!size) size = 200
@@ -53,9 +54,11 @@ UserSchema.methods.gravatar = function(size) {
 }
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
+
     bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
         cb(err, isMatch)
-    });
+    })
+
 }
 
 module.exports = mongoose.model('User', UserSchema)
