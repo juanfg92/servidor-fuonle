@@ -84,7 +84,7 @@ async function sendDocPrivate(req, res) {
 
     //find document
     try {
-        docFound = await Doc_private.findOne({ _id: documentId });
+        docFound = await Doc_private.findOne({ _id: "5ebae17ff0a9f02880ebb975" });
         if (!docFound) {
             return res.status(400).send({ message: `no document found: ${documentId}` });
         }
@@ -93,7 +93,7 @@ async function sendDocPrivate(req, res) {
     }
 
     // route document
-    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id);
+    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + ".pdf");
     return res.status(200).sendFile(folder)
 }
 
