@@ -6,7 +6,7 @@ const auth = require('../middlewares/auth')
 const sectionCtrl = require('../controllers/section')
 
 api.post('/new-section', sectionCtrl.newSection)
-api.get('/get-sections-from-classroom', sectionCtrl.getSectionFromClassroom)
+api.post('/get-sections-from-classroom', sectionCtrl.getSectionFromClassroom)
 api.delete('/delete-section', sectionCtrl.deleteSection)
 api.put('/update-section', sectionCtrl.updateSection)
 

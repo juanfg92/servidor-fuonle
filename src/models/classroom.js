@@ -54,9 +54,11 @@ ClassroomSchema.methods.gravatar = function(size) {
 }
 
 ClassroomSchema.methods.comparePassword = function(candidatePassword, cb) {
+
     bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
         cb(err, isMatch)
-    });
+    })
+
 }
 
 module.exports = mongoose.model('Classroom', ClassroomSchema)

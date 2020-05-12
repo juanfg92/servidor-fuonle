@@ -12,7 +12,7 @@ const pdf2html = require("pdf2html")
  * @param {*} req 
  * @param {*} res 
  */
-async function uploadDocPrivate(req, res) {
+function uploadDocPrivate(req, res) {
     // Check empty camps
     if (req.body.classroomId == null ||
         req.body.classroomId == "" ||
@@ -34,7 +34,7 @@ async function uploadDocPrivate(req, res) {
     let ext = spl[spl.length - 1]
 
     //extension validation
-    if (!(/^(docx)$/.test(ext))) return res.status(400).send({ message: `the document extension must be .docx` });
+    if (!(/^(docx|doc|pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.docx|.doc|.pdf)` });
 
     // Save document
     let doc_private = new Doc_private({
@@ -47,7 +47,7 @@ async function uploadDocPrivate(req, res) {
 
     //save document
     doc_private.save((err, doc_private) => {
-        if (err) res.status(500).send({ message: `Error creating the comment: ${err}` })
+        if (err) return res.status(500).send({ message: `Error creating the comment: ${err}` })
 
         //upload file and move to section folder
         let EDFile = req.files.file
@@ -68,8 +68,8 @@ async function uploadDocPrivate(req, res) {
 async function getDocumentsFromSection(req, res) {
     Doc_private.find({ _id_section: req.body.sectionId }, (err, documents) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (documents.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Documents: documents })
+        if (documents.length == 0) return res.status(200).send(false)
+        res.status(200).send(documents)
     })
 }
 

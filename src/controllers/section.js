@@ -60,8 +60,8 @@ async function newSection(req, res) {
 async function getSectionFromClassroom(req, res) {
     Section.find({ _id_classroom: req.body.classroomId }, (err, sections) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (sections.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Sections: sections })
+        if (sections.length == 0) return res.status(200).send(false)
+        return res.status(200).send(sections)
     })
 }
 

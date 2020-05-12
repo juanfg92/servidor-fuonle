@@ -107,6 +107,23 @@ async function deleteAdmin(req, res) {
     })
 }
 
+function signInClassroom(req, res) {
+    Classroom.findOne({ _id: req.body.classroomId }, (err, classroom) => {
+        if (err) return res.status(500).send({ message: err })
+        if (!classroom) return res.status(404).send({ message: `${err}` })
+
+        //compare candidate password
+        classroom.comparePassword(req.body.password, (err, isMatch) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            if (!isMatch) {
+                return res.status(200).send(false)
+            } else {
+                res.status(200).send(true)
+            }
+        })
+    }).select('+password');
+}
+
 /**
  * check if the user is an administrator
  * @param {*} req 
@@ -146,8 +163,8 @@ async function getClassroomsByClassroomName(req, res) {
     let exp = new RegExp(classroomName, 'i');
     Classroom.find({ classroomName: { $regex: exp } }, (err, classrooms) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (classrooms.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ classrooms: classrooms })
+        if (classrooms.length == 0) return res.status(200).send({ message: `no results have been obtained` })
+        res.status(200).send(classrooms)
     })
 }
 
@@ -253,6 +270,7 @@ module.exports = {
     newClassroom,
     checkAdmin,
     addAdmin,
+    signInClassroom,
     deleteAdmin,
     getClassrooms,
     getClassroomsByClassroomName,

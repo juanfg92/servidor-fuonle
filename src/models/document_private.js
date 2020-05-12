@@ -8,7 +8,7 @@ const Document_privateSchema = Schema({
     _id_section: { type: String, require: true },
     _id_user: { type: String, require: true },
     documentName: { type: String, require: true },
-    description: { type: String, require: true },
+    description: String,
     extension: { type: String, require: true },
     uploadDate: { type: Date, default: Date.now() }
 })
