@@ -60,8 +60,8 @@ async function newCategory(req, res) {
 async function getCategoriesByStudyLevel(req, res) {
     Category.find({ _id_studyLevel: req.body.studyLevelId }, (err, categories) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (categories.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Categories: categories })
+        if (categories.length == 0) return res.status(200).send(false)
+        res.status(200).send(categories)
     })
 }
 

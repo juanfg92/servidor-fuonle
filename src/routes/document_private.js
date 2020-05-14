@@ -6,7 +6,7 @@ const auth = require('../middlewares/auth')
 const doc_privateCtrl = require('../controllers/document_private')
 
 api.post('/upload-document-private', doc_privateCtrl.uploadDocPrivate)
-api.post('/send-private-document', doc_privateCtrl.sendDocPrivate)
+api.get("/send-private-document/:docid", doc_privateCtrl.sendDocPrivate)
 api.post('/get-documents-from-section', doc_privateCtrl.getDocumentsFromSection)
 api.delete('/delete-private-document', doc_privateCtrl.deleteDocument)
 api.put('/update-private-document', doc_privateCtrl.updateDocument)

@@ -57,8 +57,8 @@ async function newStudyLevel(req, res) {
 async function getStudyLevels(req, res) {
     StudyLevel.find({}, (err, studyLevel) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (studyLevel.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ StudyLevels: studyLevel })
+        if (studyLevel.length == 0) return res.status(404).send(false)
+        res.status(200).send(studyLevel)
     })
 }
 

@@ -48,8 +48,8 @@ async function newDoc_type(req, res) {
 async function getDoc_types(req, res) {
     Doc_type.find({}, (err, doc_types) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (doc_types.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Doc_types: doc_types })
+        if (doc_types.length == 0) return res.status(404).send(false)
+        res.status(200).send(doc_types)
     })
 }
 

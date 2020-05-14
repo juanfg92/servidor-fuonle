@@ -49,9 +49,8 @@ function uploadDocPrivate(req, res) {
     doc_private.save((err, doc_private) => {
         if (err) return res.status(500).send({ message: `Error creating the comment: ${err}` })
 
-        //upload file and move to section folder
         let EDFile = req.files.file
-        let folder = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + req.body.sectionId + "/" + doc_private._id);
+        let folder = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + req.body.sectionId + "/" + doc_private._id + "." + ext);
 
         EDFile.mv(folder, err => {
             if (err) return res.status(500).send({ message: err })
@@ -79,12 +78,12 @@ async function getDocumentsFromSection(req, res) {
  * @param {*} res 
  */
 async function sendDocPrivate(req, res) {
-    let documentId = req.body.documentId
+    let documentId = req.params.docid
     let docFound
 
     //find document
     try {
-        docFound = await Doc_private.findOne({ _id: "5ebae17ff0a9f02880ebb975" });
+        docFound = await Doc_private.findOne({ _id: documentId });
         if (!docFound) {
             return res.status(400).send({ message: `no document found: ${documentId}` });
         }
@@ -93,7 +92,7 @@ async function sendDocPrivate(req, res) {
     }
 
     // route document
-    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + ".pdf");
+    let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + "." + docFound.extension);
     return res.status(200).sendFile(folder)
 }
 
@@ -153,8 +152,6 @@ async function updateDocument(req, res) {
 
 }
 
-
-
 module.exports = {
     uploadDocPrivate,
     getDocumentsFromSection,
@@ -162,59 +159,3 @@ module.exports = {
     deleteDocument,
     updateDocument
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// //case docx
-// if (docFound.extension == "docx") {
-//     var options = {
-//         styleMap: [
-//             "b => strong",
-//             "i => i",
-//             "u => u",
-//             "p[style-name='Section Title'] => h1:fresh",
-//             "p[style-name='Subsection Title'] => h2:fresh"
-//         ],
-//         convertImage: mammoth.images.imgElement(function(image) {
-//             return image.read("base64").then(function(imageBuffer) {
-//                 return {
-//                     src: "data:" + image.contentType + ";base64," + imageBuffer
-//                 };
-//             });
-//         })
-//     };
-//     mammoth.convertToHtml({ path: folder }, options)
-//         .then(function(result) {
-//             var html = result.value; // The generated HTML
-//             var messages = result.messages; // Any messages, such as warnings during conversion
-//             return res.status(200).send({ resp: html, message: messages });
-//         })
-//         .done();
-// }
-// //case pdf (disable)
-// if (docFound.extension == "pdf") {
-
-//     pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
-//         // if (err) {
-//         //     console.error('Conversion error: ' + err)
-//         // } else {
-//         //     html = html.split("</head>")[1];
-//         //     html = html.replace(/\n/gi, '');
-//         //     html = html.replace(/\r/gi, '');
-//         //     return res.status(200).send({ resp: html });
-//         // }
-//         // })
-// }

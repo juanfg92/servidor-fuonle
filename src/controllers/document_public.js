@@ -153,12 +153,12 @@ async function getDocsPublicByFilter(req, res) {
                 documentName: { $regex: exp }
             })
         } else if (!categoryId && doc_type) {
-            docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_doc_type: req.body.doc_typeId, documentName: { $regex: exp } })
+            docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_doc_type: doc_type, documentName: { $regex: exp } })
         } else if (categoryId && !subcategoryId && doc_type) {
             docFound = await Doc_public.find({
                 _id_studyLevel: studyLevelId,
                 _id_category: categoryId,
-                _id_doc_type: req.body.doc_typeId,
+                _id_doc_type: doc_type,
                 documentName: { $regex: exp }
             })
         } else if (subcategoryId && doc_type) {
@@ -166,13 +166,13 @@ async function getDocsPublicByFilter(req, res) {
                 _id_studyLevel: studyLevelId,
                 _id_category: categoryId,
                 _id_subcategory: subcategoryId,
-                _id_doc_type: req.body.doc_typeId,
+                _id_doc_type: doc_type,
                 documentName: { $regex: exp }
             })
         }
 
         if (docFound.length == 0) {
-            return res.status(400).send({ message: `no results have been obtained` });
+            return res.status(400).send(false);
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
@@ -187,7 +187,7 @@ async function getDocsPublicByFilter(req, res) {
 
         coincidences.push(doc)
     });
-    return res.status(200).send({ Coincidences: coincidences });
+    return res.status(200).send(coincidences);
 }
 
 /**
@@ -200,7 +200,7 @@ async function sendDocument(req, res) {
     let docFound
         //find documents
     try {
-        docFound = await Doc_public.findOne({ _id: req.body.documentId });
+        docFound = await Doc_public.findOne({ _id: req.params.docid });
 
         if (!docFound) {
             return res.status(400).send({ message: `no results have been obtained` });
@@ -294,85 +294,3 @@ module.exports = {
     deleteDocument,
     updateDocument
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// //case docx
-// if (docFound.extension == "docx") {
-//     var options = {
-//         styleMap: [
-//             "b => strong",
-//             "i => i",
-//             "u => u",
-//             "p[style-name='Section Title'] => h1:fresh",
-//             "p[style-name='Subsection Title'] => h2:fresh"
-//         ],
-//         convertImage: mammoth.images.imgElement(function(image) {
-//             return image.read("base64").then(function(imageBuffer) {
-//                 return {
-//                     src: "data:" + image.contentType + ";base64," + imageBuffer
-//                 };
-//             });
-//         })
-//     };
-//     mammoth.convertToHtml({ path: folder }, options)
-//         .then(function(result) {
-//             var html = result.value; // The generated HTML
-//             var messages = result.messages; // Any messages, such as warnings during conversion
-//             docsSend.push(html)
-//         })
-//         .done();
-// }
-// //case pdf (disable)
-// if (docFound.extension == "pdf") {
-
-//     pdf2html.html.convertToHtml3(folder, "", -1, -1) //(folder, (err, html) => {
-//         // if (err) {
-//         //     console.error('Conversion error: ' + err)
-//         // } else {
-//         //     html = html.split("</head>")[1];
-//         //     html = html.replace(/\n/gi, '');
-//         //     html = html.replace(/\r/gi, '');
-//         //     return res.status(200).send({ resp: html });
-//         // }
-//         // })
-// }

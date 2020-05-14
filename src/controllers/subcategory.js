@@ -62,8 +62,8 @@ async function newSubcategory(req, res) {
 async function getSubcategoriesByStudyLevelAndCategoryId(req, res) {
     Subcategory.find({ _id_studyLevel: req.body.studyLevelId, _id_category: req.body.categoryId }, (err, subcategories) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (subcategories.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Subcategories: subcategories })
+        if (subcategories.length == 0) return res.status(200).send(false)
+        res.status(200).send(subcategories)
     })
 }
 
