@@ -40,7 +40,7 @@ async function uploadDocPublic(req, res) {
     let ext = spl[spl.length - 1]
 
     //extension validation
-    if (!(/^(docx|doc|pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.docx|.doc|.pdf)` });
+    if (!(/^(pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.pdf)` });
 
     // Save document
     let doc_public;
@@ -132,11 +132,11 @@ async function getDocsPublicByFilter(req, res) {
     let coincidences = []
     let folder
     let docFound
-    let documentName = req.body.documentName
-    let studyLevelId = req.body.studyLevelId
-    let categoryId = req.body.categoryId
-    let subcategoryId = req.body.subcategoryId
-    let doc_type = req.body.doc_typeId
+    let documentName = req.body.documentName == "null" ? false : req.body.documentName
+    let studyLevelId = req.body.studyLevelId == "null" ? false : req.body.studyLevelId
+    let categoryId = req.body.categoryId == "null" ? false : req.body.categoryId
+    let subcategoryId = req.body.subcategoryId == "null" ? false : req.body.subcategoryId
+    let doc_type = req.body.doc_typeId == "null" ? false : req.body.doc_typeId
 
     //find documents
     try {
@@ -172,7 +172,7 @@ async function getDocsPublicByFilter(req, res) {
         }
 
         if (docFound.length == 0) {
-            return res.status(400).send(false);
+            return res.status(200).send(false);
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
