@@ -9,7 +9,7 @@ const ClassroomSchema = Schema({
     _id_user: { type: String, require: true },
     classroomName: { type: String, require: true },
     password: { type: String, require: true, select: false },
-    blackList: Array,
+    whiteList: Array,
     administrators: Array,
     avatar: String,
     lastActivity: Date,
@@ -31,19 +31,19 @@ ClassroomSchema.pre('save', function(next) {
     })
 })
 
-ClassroomSchema.pre('findOneAndUpdate', function(next) {
+// ClassroomSchema.pre('findOneAndUpdate', function(next) {
 
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) return next(err)
+// bcrypt.genSalt(10, (err, salt) => {
+//     if (err) return next(err)
 
-        bcrypt.hash(this._update.password, salt, null, (err, hash) => {
-            if (err) return next(err)
+//     bcrypt.hash(this._update.password, salt, null, (err, hash) => {
+//         if (err) return next(err)
 
-            this._update.password = hash
-            next()
-        })
-    })
-})
+//         this._update.password = hash
+//         next()
+//     })
+// })
+// })
 
 ClassroomSchema.methods.gravatar = function(size) {
     if (!size) size = 200

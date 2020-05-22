@@ -34,7 +34,7 @@ function uploadDocPrivate(req, res) {
     let ext = spl[spl.length - 1]
 
     //extension validation
-    if (!(/^(docx|doc|pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.docx|.doc|.pdf)` });
+    if (!(/^(pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.pdf)` });
 
     // Save document
     let doc_private = new Doc_private({
@@ -112,7 +112,7 @@ async function deleteDocument(req, res) {
         }
 
         //remove document from folder
-        let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id);
+        let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + "." + docFound.extension);
 
         fs.unlink(folder, (err) => {
             if (err) {

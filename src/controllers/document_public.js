@@ -44,7 +44,7 @@ async function uploadDocPublic(req, res) {
 
     // Save document
     let doc_public;
-    if (req.body.categoryId) {
+    if (req.body.subcategoryId != "null") {
         doc_public = new Doc_public({
             _id_studyLevel: req.body.studyLevelId,
             _id_category: req.body.categoryId,
@@ -55,9 +55,24 @@ async function uploadDocPublic(req, res) {
             description: req.body.description,
             extension: ext,
         })
-    } else {
+    }
+    if (req.body.categoryId && req.body.subcategoryId == "null") {
         doc_public = new Doc_public({
             _id_studyLevel: req.body.studyLevelId,
+            _id_category: req.body.categoryId,
+            _id_subcategory: null,
+            _id_user: req.body.userId,
+            _id_doc_type: req.body.doc_typeId,
+            documentName: req.body.documentName,
+            description: req.body.description,
+            extension: ext,
+        })
+    }
+    if (req.body.categoryId == "null" && req.body.subcategoryId == "null") {
+        doc_public = new Doc_public({
+            _id_studyLevel: req.body.studyLevelId,
+            _id_category: null,
+            _id_subcategory: null,
             _id_user: req.body.userId,
             _id_doc_type: req.body.doc_typeId,
             documentName: req.body.documentName,
@@ -76,10 +91,13 @@ async function uploadDocPublic(req, res) {
         let folder
 
         // route document
-        if (doc_public._id_category) {
-            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id_category + "/" + doc_public._id_subcategory + "/" + doc_public._id);
+        if (doc_public._id_subcategory != null) {
+            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id_category + "/" + doc_public._id_subcategory + "/" + doc_public._id + "." + doc_public.extension);
+        }
+        if (doc_public._id_subcategory == null && doc_public._id_category) {
+            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id_category + "/" + doc_public._id + "." + doc_public.extension);
         } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id);
+            folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id + "." + doc_public.extension);
         }
         EDFile.mv(folder, err => {
             if (err) {
@@ -132,7 +150,7 @@ async function getDocsPublicByFilter(req, res) {
     let coincidences = []
     let folder
     let docFound
-    let documentName = req.body.documentName == "null" ? false : req.body.documentName
+    let documentName = req.body.documentName == "null" ? "" : req.body.documentName
     let studyLevelId = req.body.studyLevelId == "null" ? false : req.body.studyLevelId
     let categoryId = req.body.categoryId == "null" ? false : req.body.categoryId
     let subcategoryId = req.body.subcategoryId == "null" ? false : req.body.subcategoryId
@@ -143,25 +161,30 @@ async function getDocsPublicByFilter(req, res) {
         let exp = new RegExp(documentName, 'i')
         if (!categoryId && !doc_type) {
             docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, documentName: { $regex: exp } })
-        } else if (categoryId && !subcategoryId && !doc_type) {
+        }
+        if (categoryId && !subcategoryId && !doc_type) {
             docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_category: categoryId, documentName: { $regex: exp } })
-        } else if (subcategoryId && !doc_type) {
+        }
+        if (subcategoryId && !doc_type) {
             docFound = await Doc_public.find({
                 _id_studyLevel: studyLevelId,
                 _id_category: categoryId,
                 _id_subcategory: subcategoryId,
                 documentName: { $regex: exp }
             })
-        } else if (!categoryId && doc_type) {
+        }
+        if (!categoryId && doc_type) {
             docFound = await Doc_public.find({ _id_studyLevel: studyLevelId, _id_doc_type: doc_type, documentName: { $regex: exp } })
-        } else if (categoryId && !subcategoryId && doc_type) {
+        }
+        if (categoryId && !subcategoryId && doc_type) {
             docFound = await Doc_public.find({
                 _id_studyLevel: studyLevelId,
                 _id_category: categoryId,
                 _id_doc_type: doc_type,
                 documentName: { $regex: exp }
             })
-        } else if (subcategoryId && doc_type) {
+        }
+        if (subcategoryId && doc_type) {
             docFound = await Doc_public.find({
                 _id_studyLevel: studyLevelId,
                 _id_category: categoryId,
@@ -210,10 +233,13 @@ async function sendDocument(req, res) {
     }
 
     if (docFound) {
-        if (docFound._id_category) {
-            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id);
+        if (docFound._id_subcategory) {
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id + "." + docFound.extension);
+        }
+        if (docFound._id_category && !docFound._id_subcategory) {
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id + "." + docFound.extension);
         } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id);
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id + "." + docFound.extension);
         }
         return res.status(200).sendFile(folder)
     } else {

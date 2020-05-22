@@ -37,8 +37,8 @@ async function newClassroom(req, res) {
     try {
         let exp = new RegExp(req.body.classroomName, 'i');
         let classroomNameFound = await Classroom.findOne({ classroomName: { $regex: exp } });
-        if (classroomNameFound) {
-            return res.status(400).send({ message: `the class room name: ${req.body.classroomName} is already registered` });
+        if (classroomNameFound) { //{ message: `the class room name: ${req.body.classroomName} is already registered` }
+            return res.status(200).send(false);
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
@@ -49,6 +49,7 @@ async function newClassroom(req, res) {
         userId: req.body.userId,
         password: req.body.password,
         classroomName: req.body.classroomName,
+        whiteList: req.body.userId,
         administrators: req.body.userId
     })
 
@@ -61,7 +62,7 @@ async function newClassroom(req, res) {
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, { recursive: true });
         }
-        return res.status(200).send({ classroom: classroom });
+        return res.status(200).send(true);
     })
 }
 
@@ -71,15 +72,40 @@ async function newClassroom(req, res) {
  * @param {*} res 
  */
 async function addAdmin(req, res) {
+    let classroom = await Classroom.findById(req.body.classroomId)
+    if (classroom.administrators.indexOf(req.body.userId) < 0) {
+        classroom.administrators.push(req.body.userId)
 
-    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
-    classroom.administrators.push(req.body.userId)
+        Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
 
-    Classroom.findOneAndUpdate(req.body.classroomId, classroom, (err, classroom) => {
-        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
+        })
+    } else {
+        //if userId is already admin of this class
+        return res.status(200).send(false)
+    }
+}
 
-        return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
-    })
+/**
+ * add user to white list
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function addUserWhiteList(req, res) {
+    let classroom = await Classroom.findById(req.body.classroomId)
+    if (classroom.whiteList.indexOf(req.body.userId) < 0) {
+        classroom.whiteList.push(req.body.userId)
+
+        Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+            return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
+        })
+    } else {
+        //if userId is already admin of this class
+        return res.status(200).send(false)
+    }
 }
 
 /**
@@ -88,22 +114,42 @@ async function addAdmin(req, res) {
  * @param {*} res 
  */
 async function deleteAdmin(req, res) {
-
-    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
-    if (classroom.administrators.length > 1) {
-        let index = classroom.administrators.indexOf(req.body.userId);
-        if (index > -1) {
-            classroom.administrators.splice(index, 1);
+    Classroom.findOne({ _id: req.body.classroomId }, (err, classroom) => {
+        if (err) return res.status(500).send(err)
+        if (classroom.administrators.length > 1) {
+            let index = classroom.administrators.indexOf(req.body.userId);
+            if (index > -1) {
+                classroom.administrators.splice(index, 1);
+                Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
+                    if (err) return res.status(500).send(false)
+                    return res.status(200).send(true)
+                })
+            }
+        } else {
+            //{ message: `there must be at least one admin` }
+            res.status(200).send(false)
         }
-    } else {
-        res.status(200).send({ message: `there must be at least one admin` })
-    }
+    })
+}
 
+/**
+ * delete user white list
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteUserWhiteList(req, res) {
+    Classroom.findOne({ _id: req.body.classroomId }, (err, classroom) => {
+        if (err) return res.status(500).send(err)
 
-    Classroom.findOneAndUpdate(req.body.classroomId, classroom, (err, classroom) => {
-        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        let index = classroom.whiteList.indexOf(req.body.userId);
+        if (index > -1) {
+            classroom.whiteList.splice(index, 1);
+            Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
+                if (err) return res.status(500).send({ message: `Error: ${err}` })
+                return res.status(200).send(true)
+            })
+        }
 
-        return res.status(200).send({ message: `user: ${req.body.userId} deleted as administrator` })
     })
 }
 
@@ -141,6 +187,22 @@ async function checkAdmin(req, res) {
 }
 
 /**
+ * check if the user white list
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function checkWhiteList(req, res) {
+    Classroom.findOne({ _id: req.body.classroomId }, (err, classroom) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (classroom.whiteList.indexOf(req.body.userId) > -1) {
+            return res.status(200).send(true)
+        } else {
+            return res.status(200).send(false)
+        }
+    })
+}
+
+/**
  * get all classrooms
  * @param {*} req 
  * @param {*} res 
@@ -151,6 +213,28 @@ async function getClassrooms(req, res) {
         if (classrooms.length == 0) return res.status(404).send({ message: `no results have been obtained` })
         res.status(200).send({ classrooms: classrooms })
     })
+}
+
+/**
+ * get administrators of a class
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getClassAdmins(req, res) {
+    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
+    if (classroom.administrators.length == 0) return res.status(404).send(false)
+    return res.status(200).send(classroom.administrators)
+}
+
+/**
+ * get white list of a class
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getClassUserWhiteList(req, res) {
+    let classroom = await Classroom.findOne({ _id: req.body.classroomId })
+    if (classroom.whiteList.length == 0) return res.status(200).send(false)
+    return res.status(200).send(classroom.whiteList)
 }
 
 /**
@@ -188,33 +272,32 @@ async function getClassroomById(req, res) {
  * @param {*} res 
  */
 function deleteClassroom(req, res) {
-    let classroomId = req.body.classroomId;
-    Classroom.findByIdAndRemove(classroomId, (err) => {
+    Classroom.findByIdAndRemove({ _id: req.params.classroomid }, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
         //remove all sections, documents and comments contained in this classroom
-        Section.deleteMany({ _id_classroom: classroomId }, (err) => {
+        Section.deleteMany({ _id_classroom: req.params.classroomid }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
         })
-        Doc_private.deleteMany({ _id_classroom: classroomId }, (err) => {
+        Doc_private.deleteMany({ _id_classroom: req.params.classroomid }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
         })
-        Comment.deleteMany({ _id_classroom: classroomId }, (err) => {
+        Comment.deleteMany({ _id_classroom: req.params.classroomid }, (err) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
         })
 
         //remove all containers from the classroom
-        let pathFile = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId)
+        let pathFile = path.resolve(__dirname + "/../../classroom/" + req.params.classroomid)
         rimraf.sync(pathFile);
 
-        res.status(200).send({ message: `class room ${classroomId} has been deleted` })
+        res.status(200).send(true)
     })
 }
 
@@ -273,8 +356,13 @@ module.exports = {
     signInClassroom,
     deleteAdmin,
     getClassrooms,
+    getClassAdmins,
     getClassroomsByClassroomName,
     getClassroomById,
     deleteClassroom,
-    updateClassroom
+    updateClassroom,
+    checkWhiteList,
+    addUserWhiteList,
+    deleteUserWhiteList,
+    getClassUserWhiteList
 }

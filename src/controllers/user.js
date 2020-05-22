@@ -82,13 +82,13 @@ async function signUp(req, res) {
 function signIn(req, res) {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) return res.status(500).send({ message: err })
-        if (!user) return res.status(404).send({ message: `wrong username or password` })
+        if (!user) return res.status(404).send(false)
 
         //compare candidate password
         user.comparePassword(req.body.password, (err, isMatch) => {
-            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            if (err) return res.status(500).send({ message: `Error: ${err}` })
             if (!isMatch) {
-                return res.status(404).send({ message: `wrong username or password` })
+                return res.status(200).send(false)
             } else {
                 user.token = serviceJwt.createToken(user)
 
@@ -113,8 +113,8 @@ async function getUserByJwt(req, res) {
     let userJwt = req.body.jwt;
     User.findOne({ token: userJwt }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (!user) return res.status(404).send(false)
-        return res.status(200).send({ user: user })
+        if (!user) return res.status(200).send(false)
+        return res.status(200).send(user)
     })
 }
 
@@ -136,13 +136,42 @@ async function getUsers(req, res) {
  * @param {*} req 
  * @param {*} res 
  */
-async function getUserByEmail(req, res) {
+async function getUsersByEmail(req, res) {
     let userEmail = req.body.email;
     let exp = new RegExp(userEmail, 'i');
     User.find({ email: { $regex: exp } }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ usuario: user })
+        if (user.length == 0) return res.status(404).send(false)
+        return res.status(200).send(user)
+    })
+}
+
+/**
+ * find users by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUsersById(req, res) {
+    let userIds = req.body.userIds;
+
+    User.find().where('_id').in(userIds).exec((err, users) => {
+        if (err) return res.status(500).send(err)
+        return res.status(200).send(users)
+    })
+
+
+}
+
+/**
+ * get user by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getUserById(req, res) {
+    User.findById(req.body.userId, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!user) return res.status(404).send(false)
+        return res.status(200).send(user)
     })
 }
 
@@ -158,6 +187,16 @@ async function getUserByUserName(req, res) {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
         if (user.length == 0) return res.status(404).send({ message: `no results have been obtained` })
         res.status(200).send({ usuario: user })
+    })
+}
+
+async function getUserByEmail(req, res) {
+    let email = req.body.email;
+    let exp = new RegExp(email, 'i');
+    User.findOne({ email: { $regex: exp } }, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!user) return res.status(200).send(false)
+        res.status(200).send(user)
     })
 }
 
@@ -244,8 +283,11 @@ module.exports = {
     signIn,
     getUserByJwt,
     getUsers,
-    getUserByEmail,
+    getUsersByEmail,
+    getUsersById,
+    getUserById,
     getUserByUserName,
+    getUserByEmail,
     deleteUser,
     updateUser
 }
