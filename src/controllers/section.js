@@ -28,8 +28,8 @@ async function newSection(req, res) {
     try {
         let exp = new RegExp(req.body.sectionName, 'i');
         let sectionNameFound = await Section.findOne({ _id_classroom: req.body.classroomId, sectionName: { $regex: exp } });
-        if (sectionNameFound) {
-            return res.status(400).send({ message: `the section name: ${req.body.sectionName} is already registered` });
+        if (sectionNameFound) { //{ message: `the section name: ${req.body.sectionName} is already registered` }
+            return res.status(200).send(false);
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
@@ -48,7 +48,7 @@ async function newSection(req, res) {
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, { recursive: true });
         }
-        return res.status(200).send({ Section: section });
+        return res.status(200).send(true);
     })
 }
 

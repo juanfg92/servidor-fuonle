@@ -17,7 +17,7 @@ api.post('/delete-admin-classroom', classroomCtrl.deleteAdmin)
 api.post('/delete-user-whitelist', classroomCtrl.deleteUserWhiteList)
 api.get('/get-classrooms', classroomCtrl.getClassrooms)
 api.post('/get-classrooms-by-classroomname', classroomCtrl.getClassroomsByClassroomName)
-api.get('/get-classroom-by-id', classroomCtrl.getClassroomById)
+api.post('/get-classroom-by-id', classroomCtrl.getClassroomById)
 api.delete('/delete-classroom/:classroomid', classroomCtrl.deleteClassroom)
 api.put('/update-classroom', classroomCtrl.updateClassroom)
 

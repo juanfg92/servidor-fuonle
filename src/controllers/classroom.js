@@ -259,10 +259,10 @@ async function getClassroomsByClassroomName(req, res) {
  */
 async function getClassroomById(req, res) {
     let classroomId = req.body.classroomId;
-    Classroom.findById(classroomId, (err, classroom) => {
+    Classroom.findById({ _id: classroomId }, (err, classroom) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (classroom.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ classroom: classroom })
+        if (!classroom) return res.status(200).send(false)
+        return res.status(200).send(classroom)
     })
 }
 
@@ -307,25 +307,30 @@ function deleteClassroom(req, res) {
  * @param {*} res 
  */
 async function updateClassroom(req, res) {
-    let update = req.body;
 
     // Check empty camps
     if (req.body.classroomId == null ||
-        req.body.classroomId == "" ||
-        req.body.password == null ||
-        req.body.password == "" ||
-        req.body.classroomName == null ||
-        req.body.classroomName == "") {
+        req.body.classroomId == ""
+    ) {
         return res.status(500).send({ message: `Error updating the class room: empty camps` })
     }
 
     // Password validation between 4 and 10 characters
-    if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
-        message: `the password must be between 4 and 10 characters`
-    });
+    if (req.body.password) {
+        if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
+            message: `the password must be between 4 and 10 characters`
+        });
+        let classroom = new Classroom()
+        classroom.cryptPassword(req.body.password, (err, passEncrypt) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            req.body.password = passEncrypt
+        })
+    }
 
     // classroomName validation 
-    if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
+    if (req.body.classroomName) {
+        if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
+    }
 
     // Check duplication classroomName
     try {
@@ -333,16 +338,17 @@ async function updateClassroom(req, res) {
         let classroomFound = await Classroom.findOne({ classroomName: { $regex: exp } });
 
         if (classroomFound) {
-            if (classroomFound._id != req.body.classroomId) {
-                return res.status(400).send({ message: `the class room name: ${req.body.classroomName} is already registered` });
+            if (classroomFound._id != req.body.classroomId) { //{ message: `the class room name: ${req.body.classroomName} is already registered` }
+                return res.status(200).send(false);
             }
         }
+        let update = req.body;
         //update classroom
         Classroom.findOneAndUpdate(req.body.classroomId, update, (err, classroom) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
-            res.status(200).send({ Classroom: classroom })
+            res.status(200).send(true)
         })
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
