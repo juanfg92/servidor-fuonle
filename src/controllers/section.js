@@ -2,6 +2,7 @@
 
 const Section = require('../models/section')
 const Doc_private = require('../models/document_private')
+const Comment = require('../models/comment')
 const parameters = require('../../parameters')
 const path = require("path");
 const fs = require("fs");
@@ -65,9 +66,24 @@ async function getSectionFromClassroom(req, res) {
     })
 }
 
-function deleteSection(req, res) {
+/**
+ * get section by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getSectionById(req, res) {
     let sectionId = req.body.sectionId;
-    Section.findByIdAndRemove(sectionId, (err) => {
+    Section.findById({ _id: sectionId }, (err, section) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!section) return res.status(200).send(false)
+        return res.status(200).send(section)
+    })
+}
+
+function deleteSection(req, res) {
+    let sectionId = req.params.sectionid;
+    let classroomId = req.params.classroomid
+    Section.findByIdAndRemove({ _id: sectionId }, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
@@ -84,10 +100,10 @@ function deleteSection(req, res) {
         })
 
         //remove all containers from the section
-        let pathFile = path.resolve(__dirname + "/../../classroom/" + req.body.classroomId + "/" + sectionId)
+        let pathFile = path.resolve(__dirname + "/../../classroom/" + classroomId + "/" + sectionId)
         rimraf.sync(pathFile);
-
-        res.status(200).send({ message: `section ${sectionId} has been deleted` })
+        // { message: `section ${sectionId} has been deleted` }
+        return res.status(200).send(true)
     })
 }
 
@@ -113,28 +129,30 @@ async function updateSection(req, res) {
     if (!(parameters.expReg.sectionName.test(req.body.sectionName))) return res.status(400).send({ message: parameters.errMessage.sectionName });
 
     // Check duplication section
-    try {
-        let exp = new RegExp(req.body.sectionName, 'i');
-        let sectionFound = await Section.findOne({ _id_classroom: req.body.classroomId, sectionName: { $regex: exp } });
+    // try {
+    // let exp = new RegExp(req.body.sectionName, 'i');
+    // let sectionFound = await Section.findOne({ _id_classroom: req.body.classroomId, sectionName: { $regex: exp } });
 
-        if (sectionFound) {
-            return res.status(400).send({ message: `the section name: ${req.body.sectionName} is already registered` });
-        }
-        //update section
-        Section.findOneAndUpdate({ _id: req.body.sectionId }, update, (err, section) => {
-            if (err) {
-                res.status(500).send({ message: `Error server: ${err}` })
-            }
-            res.status(200).send({ Section: section })
+    // if (req.body.sectionName == sectionFound.sectionName) res.status(200).send(true)
+
+    // if (sectionFound) { //{ message: `the section name: ${req.body.sectionName} is already registered` }
+    // return res.status(200).send(false);
+    // }
+    //update section
+    Section.findOneAndUpdate({ _id: req.body.sectionId }, update, (err, section) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+            return res.status(200).send(true)
         })
-    } catch (err) {
-        return res.status(500).send({ message: `Error server: ${err}` });
-    }
+        // } catch (err) {
+        // return res.status(500).send({ message: `Error server: ${err}` });
+        // }
 }
 
 module.exports = {
     newSection,
     getSectionFromClassroom,
+    getSectionById,
     deleteSection,
     updateSection
 }

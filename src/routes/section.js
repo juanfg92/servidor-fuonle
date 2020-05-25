@@ -7,7 +7,8 @@ const sectionCtrl = require('../controllers/section')
 
 api.post('/new-section', sectionCtrl.newSection)
 api.post('/get-sections-from-classroom', sectionCtrl.getSectionFromClassroom)
-api.delete('/delete-section', sectionCtrl.deleteSection)
+api.post('/get-section-by-id', sectionCtrl.getSectionById)
+api.delete('/delete-section/:sectionid/:classroomid', sectionCtrl.deleteSection)
 api.put('/update-section', sectionCtrl.updateSection)
 
 module.exports = api

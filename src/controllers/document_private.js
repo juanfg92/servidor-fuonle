@@ -33,6 +33,16 @@ function uploadDocPrivate(req, res) {
     let spl = req.files.file.name.split(".");
     let ext = spl[spl.length - 1]
 
+    //create name document
+    var name = "";
+    for (let index = 0; index < spl.length - 1; index++) {
+        if (index == 0) {
+            name += spl[index]
+        } else {
+            name += " " + spl[index]
+        }
+    }
+
     //extension validation
     if (!(/^(pdf)$/.test(ext))) return res.status(400).send({ message: `the document extension must be (.pdf)` });
 
@@ -42,7 +52,7 @@ function uploadDocPrivate(req, res) {
         _id_section: req.body.sectionId,
         _id_user: req.body.userId,
         extension: ext,
-        documentName: req.body.documentName
+        documentName: name
     })
 
     //save document
@@ -102,11 +112,11 @@ async function sendDocPrivate(req, res) {
  * @param {*} res 
  */
 async function deleteDocument(req, res) {
-    let documentId = req.body.documentId;
+    let documentId = req.params.docid;
 
-    let docFound = await Doc_public.findOne({ _id: documentId });
+    let docFound = await Doc_private.findOne({ _id: documentId });
 
-    Doc_private.findByIdAndRemove(documentId, (err) => {
+    Doc_private.findByIdAndRemove({ _id: documentId }, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
@@ -115,11 +125,11 @@ async function deleteDocument(req, res) {
         let folder = path.resolve(__dirname + "/../../classroom/" + docFound._id_classroom + "/" + docFound._id_section + "/" + docFound._id + "." + docFound.extension);
 
         fs.unlink(folder, (err) => {
-            if (err) {
-                return res.status(500).send({ message: `Error server: ${err}` })
-            }
-        })
-        res.status(200).send({ message: `document ${documentId} has been deleted` })
+                if (err) {
+                    return res.status(500).send({ message: `Error server: ${err}` })
+                }
+            }) //{ message: `document ${documentId} has been deleted` }
+        return res.status(200).send(true)
     })
 }
 
