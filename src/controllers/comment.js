@@ -15,6 +15,7 @@ async function newComment(req, res) {
         req.body.sectionId == "" ||
         req.body.userId == null ||
         req.body.userId == "" ||
+        req.body.writeAdmin == undefined ||
         req.body.text == null ||
         req.body.text == "") {
         return res.status(500).send({ message: `Error creating the comment: empty camps` })
@@ -28,12 +29,13 @@ async function newComment(req, res) {
         _id_classroom: req.body.classroomId,
         _id_section: req.body.sectionId,
         _id_user: req.body.userId,
+        writeAdmin: req.body.writeAdmin,
         text: req.body.text
     })
 
     comment.save((err, comment) => {
         if (err) res.status(500).send({ message: `Error creating the comment: ${err}` })
-        return res.status(200).send({ Comment: comment });
+        return res.status(200).send(true);
     })
 }
 
