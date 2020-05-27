@@ -38,7 +38,7 @@ async function signUp(req, res) {
         let exp = new RegExp(req.body.email, 'i');
         let emailFound = await User.findOne({ email: { $regex: exp } });
         if (emailFound) {
-            return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
+            return res.status(200).send({ email: 'false' });
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
@@ -50,7 +50,7 @@ async function signUp(req, res) {
         let name = req.body.userName
         let userFound = await User.findOne({ userName: req.body.userName });
         if (userFound) {
-            return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
+            return res.status(200).send({ userName: 'false' });
         }
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
@@ -68,9 +68,7 @@ async function signUp(req, res) {
 
     user.save((err, user) => {
         if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
-        return res.status(200).send({
-            user: user.id
-        });
+        return res.status(200).send(true);
     })
 }
 

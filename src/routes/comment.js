@@ -6,8 +6,9 @@ const auth = require('../middlewares/auth')
 const commentCtrl = require('../controllers/comment')
 
 api.post('/new-comment', commentCtrl.newComment)
-api.get('/get-comments-from-section', commentCtrl.getCommentFromSection)
+api.post('/get-comments-from-section', commentCtrl.getCommentFromSection)
 api.delete('/delete-comment', commentCtrl.deleteComment)
+api.delete('/delete-all-comments', commentCtrl.deleteAllComments)
 api.put('/update-comment', commentCtrl.updateComment)
 
 module.exports = api

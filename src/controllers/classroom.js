@@ -344,7 +344,7 @@ async function updateClassroom(req, res) {
         }
         let update = req.body;
         //update classroom
-        Classroom.findOneAndUpdate(req.body.classroomId, update, (err, classroom) => {
+        Classroom.findOneAndUpdate({ _id: req.body.classroomId }, update, (err, classroom) => {
             if (err) {
                 res.status(500).send({ message: `Error server: ${err}` })
             }
