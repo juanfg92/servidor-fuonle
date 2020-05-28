@@ -23,7 +23,7 @@ async function newComment(req, res) {
     }
 
     // comment validation 
-    if (req.body.text.length > 512 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 512 characters` });
+    if (req.body.text.length > 1024 || req.body.text.length < 1) return res.status(400).send({ message: `the comment must be between 1 and 512 characters` });
 
 
     User.findById({ _id: req.body.userId }, (err, user) => {
@@ -43,10 +43,6 @@ async function newComment(req, res) {
             return res.status(200).send(true);
         })
     })
-}
-
-async function IntTwoChars(i) {
-    return (`0${i}`).slice(-2);
 }
 
 async function getCommentFromSection(req, res) {
@@ -77,11 +73,11 @@ function deleteComment(req, res) {
  * @param {*} res 
  */
 function deleteAllComments(req, res) {
-    Comment.deleteMany({ _id: req.body.seccionId }, (err) => {
+    Comment.deleteMany({ _id_section: req.params.sectionid }, (err) => {
         if (err) {
             res.status(500).send({ message: `Error server: ${err}` })
         }
-        res.status(200).send(true)
+        return res.status(200).send(true)
     })
 }
 
