@@ -27,7 +27,7 @@ function uploadDocPrivate(req, res) {
     }
 
     // documentName validation 
-    if (!(parameters.expReg.docPrivateName.test(req.body.documentName))) return res.status(400).send({ message: parameters.errMessage.docPrivateName });
+    if (!(parameters.expReg.docPrivateName.test(req.body.documentName))) return res.status(400).send(parameters.errMessage.docPrivateName);
 
     //get extension
     let spl = req.files.file.name.split(".");
