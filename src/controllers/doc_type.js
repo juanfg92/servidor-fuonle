@@ -48,8 +48,21 @@ async function newDoc_type(req, res) {
 async function getDoc_types(req, res) {
     Doc_type.find({}, (err, doc_types) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (doc_types.length == 0) return res.status(404).send(false)
-        res.status(200).send(doc_types)
+        if (doc_types.length == 0) return res.status(200).send(false)
+        return res.status(200).send(doc_types)
+    })
+}
+
+/**
+ * get doc type by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getDoc_typesById(req, res) {
+    Doc_type.findById({ _id: req.body.doctypeid }, (err, doc_type) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!doc_type) return res.status(200).send(false)
+        return res.status(200).send(doc_type)
     })
 }
 
@@ -62,9 +75,9 @@ function deleteDoc_type(req, res) {
     let doc_typeId = req.body.doc_typeId;
     Doc_type.findByIdAndRemove(doc_typeId, (err) => {
         if (err) {
-            res.status(500).send({ message: `Error server: ${err}` })
+            return res.status(500).send({ message: `Error server: ${err}` })
         }
-        res.status(200).send({ message: `document type ${doc_typeId} has been deleted` })
+        return res.status(200).send({ message: `document type ${doc_typeId} has been deleted` })
     })
 }
 
@@ -109,5 +122,6 @@ module.exports = {
     newDoc_type,
     getDoc_types,
     deleteDoc_type,
-    updateDoc_type
+    updateDoc_type,
+    getDoc_typesById
 }
