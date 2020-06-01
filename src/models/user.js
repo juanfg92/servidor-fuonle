@@ -10,6 +10,7 @@ const UserSchema = new Schema({
     password: { type: String, select: false, required: true },
     userName: { type: String, unique: true, lowercase: true, required: true },
     token: String,
+    _id_docs_favorites: Array,
     avatar: String,
     _id_rol: { type: String, default: "user" },
     signupDate: { type: Date, default: Date.now() },

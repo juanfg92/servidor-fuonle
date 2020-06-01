@@ -215,6 +215,51 @@ async function deleteUser(req, res) {
 }
 
 /**
+ * add favorite doc to user
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function addDocFavorite(req, res) {
+    let user = await User.findById(req.body.userId)
+        //20 documents max
+    if (user._id_docs_favorites.length > 20) {
+        return res.status(200).send({ maxFiles: `you cannot have more than 20 favorite documents` })
+    } else {
+        if (user._id_docs_favorites.indexOf(req.body.docId) == -1) {
+            user._id_docs_favorites.push(req.body.docId)
+
+            User.findOneAndUpdate({ _id: req.body.userId }, user, (err, user) => {
+                if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+                return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
+            })
+        } else {
+            //if document is already favorite of user
+            return res.status(200).send(false)
+        }
+    }
+}
+
+/**
+ * remove favorite doc of user
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function deleteDocFavorite(req, res) {
+    User.findOne({ _id: req.body.userId }, (err, user) => {
+        if (err) return res.status(500).send(err)
+        let index = user._id_docs_favorites.indexOf(req.body.docId);
+        if (index > -1) {
+            user._id_docs_favorites.splice(index, 1);
+            User.findOneAndUpdate({ _id: req.body.userId }, user, (err, user) => {
+                if (err) return res.status(500).send(false)
+                return res.status(200).send(true)
+            })
+        }
+    })
+}
+
+/**
  * update user
  * at the moment, he can only change password
  * @param {*} req 
@@ -287,5 +332,7 @@ module.exports = {
     getUserByUserName,
     getUserByEmail,
     deleteUser,
-    updateUser
+    updateUser,
+    addDocFavorite,
+    deleteDocFavorite
 }

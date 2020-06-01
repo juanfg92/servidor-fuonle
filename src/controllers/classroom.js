@@ -73,7 +73,7 @@ async function newClassroom(req, res) {
  */
 async function addAdmin(req, res) {
     let classroom = await Classroom.findById(req.body.classroomId)
-    if (classroom.administrators.indexOf(req.body.userId) < 0) {
+    if (classroom.administrators.indexOf(req.body.userId) == -1) {
         classroom.administrators.push(req.body.userId)
 
         Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
