@@ -247,8 +247,8 @@ async function getClassroomsByClassroomName(req, res) {
     let exp = new RegExp(classroomName, 'i');
     Classroom.find({ classroomName: { $regex: exp } }, (err, classrooms) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (classrooms.length == 0) return res.status(200).send({ message: `no results have been obtained` })
-        res.status(200).send(classrooms)
+        if (classrooms.length == 0) return res.status(200).send(false)
+        return res.status(200).send(classrooms)
     })
 }
 
