@@ -98,7 +98,8 @@ async function uploadDocPublic(req, res) {
         }
         if (doc_public._id_subcategory == null && doc_public._id_category) {
             folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id_category + "/" + doc_public._id + "." + doc_public.extension);
-        } else { //case pre-primaria, dont have categories and subcategories
+        }
+        if (doc_public._id_subcategory == null && doc_public._id_category == null) { //case pre-primaria, dont have categories and subcategories
             folder = path.resolve(__dirname + "/../../public_document/" + doc_public._id_studyLevel + "/" + doc_public._id + "." + doc_public.extension);
         }
         EDFile.mv(folder, err => {
@@ -202,14 +203,8 @@ async function getDocsPublicByFilter(req, res) {
     } catch (err) {
         return res.status(500).send({ message: `Error server: ${err}` });
     }
+    //push all doc coincidences and send resp
     docFound.forEach(doc => {
-        // route document
-        if (doc.categoryId) {
-            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc.categoryId + "/" + doc.subcategoryId + "/" + doc._id);
-        } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../public_document/" + doc.studyLevelId + "/" + doc._id);
-        }
-
         coincidences.push(doc)
     });
     return res.status(200).send(coincidences);
@@ -227,6 +222,11 @@ async function getPublicDocById(req, res) {
     })
 }
 
+/**
+ * get doc by id
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getPublicDocByUserId(req, res) {
     Doc_public.find({ _id_user: req.body.userId }, (err, docs) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
@@ -262,7 +262,8 @@ async function sendDocument(req, res) {
         }
         if (docFound._id_category && !docFound._id_subcategory) {
             folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id + "." + docFound.extension);
-        } else { //case pre-primaria, dont have categories and subcategories
+        }
+        if (!docFound._id_category && !docFound._id_subcategory) { //case pre-primaria, dont have categories and subcategories
             folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id + "." + docFound.extension);
         }
         return res.status(200).sendFile(folder)
@@ -288,9 +289,13 @@ async function deleteDocument(req, res) {
         }
 
         //remove document from folder
-        if (docFound._id_category) {
+        if (docFound._id_subcategory) {
             folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id + "." + docFound.extension);
-        } else { //case pre-primaria, dont have categories and subcategories
+        }
+        if (docFound._id_category && !docFound._id_subcategory) {
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id + "." + docFound.extension);
+        }
+        if (!docFound._id_category && !docFound._id_subcategory) { //case pre-primaria, dont have categories and subcategories
             folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id + "." + docFound.extension);
         }
 
