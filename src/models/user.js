@@ -62,4 +62,17 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 
 }
 
+UserSchema.methods.cryptPassword = function(password, cb) {
+
+    bcrypt.genSalt(10, (err, salt) => {
+        if (err) return next(err)
+
+        bcrypt.hash(password, salt, null, (err, hash) => {
+            if (err) return next(err)
+
+            cb(err, hash)
+        })
+    })
+}
+
 module.exports = mongoose.model('User', UserSchema)

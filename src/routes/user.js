@@ -16,6 +16,7 @@ api.post('/get-users-by-username', userCtrl.getUserByUserName)
 api.post('/get-user-by-email', userCtrl.getUserByEmail)
 api.delete('/delete-user', userCtrl.deleteUser)
 api.post('/add-doc-favorite', userCtrl.addDocFavorite)
+api.post('/get-doc-favorites-user', userCtrl.getDocFavUser)
 api.post('/delete-doc-favorite', userCtrl.deleteDocFavorite)
 api.put('/update-user', userCtrl.updateUser)
 

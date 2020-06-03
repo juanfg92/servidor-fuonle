@@ -1,6 +1,8 @@
 'use strict'
 
 const Doc_public = require('../models/document_public')
+const User = require('../models/user')
+const UserController = require('../controllers/user')
 const parameters = require('../../parameters')
 const path = require("path")
 const fs = require("fs")
@@ -214,6 +216,28 @@ async function getDocsPublicByFilter(req, res) {
 }
 
 /**
+ * get document by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getPublicDocById(req, res) {
+    Doc_public.findById({ _id: req.body.docId }, (err, doc) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        return res.status(200).send(doc)
+    })
+}
+
+async function getPublicDocByUserId(req, res) {
+    Doc_public.find({ _id_user: req.body.userId }, (err, docs) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (docs) {
+            return res.status(200).send(docs)
+        }
+        return res.status(200).send(false)
+    })
+}
+
+/**
  * send document by id
  * @param {*} req 
  * @param {*} res 
@@ -254,28 +278,46 @@ async function sendDocument(req, res) {
  * @param {*} res 
  */
 async function deleteDocument(req, res) {
-    let documentId = req.body.documentId;
+    let documentId = req.params.docid;
     let folder
     let docFound = await Doc_public.findOne({ _id: documentId });
 
     Doc_public.findByIdAndRemove(documentId, (err) => {
         if (err) {
-            res.status(500).send({ message: `Error server: ${err}` })
+            return res.status(500).send({ message: `Error server: ${err}` })
         }
 
         //remove document from folder
         if (docFound._id_category) {
-            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id);
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id_category + "/" + docFound._id_subcategory + "/" + docFound._id + "." + docFound.extension);
         } else { //case pre-primaria, dont have categories and subcategories
-            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id);
+            folder = path.resolve(__dirname + "/../../public_document/" + docFound._id_studyLevel + "/" + docFound._id + "." + docFound.extension);
         }
 
         fs.unlink(folder, (err) => {
-            if (err) {
-                return res.status(500).send({ message: `Error server: ${err}` })
-            }
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
         })
-        res.status(200).send({ message: `document ${documentId} has been deleted` })
+
+        //We search for all users who have this document as a favorite and delete it
+        User.find({ _id_docs_favorites: { "$in": [documentId] } }, (err, users) => {
+            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+            if (users) {
+                users.forEach(user => {
+                    User.findOne({ _id: user._id }, (err, user) => {
+                        if (err) return res.status(500).send(err)
+                        let index = user._id_docs_favorites.indexOf(documentId);
+                        if (index > -1) {
+                            user._id_docs_favorites.splice(index, 1);
+                            User.findOneAndUpdate({ _id: user._id }, user, (err, user) => {
+                                if (err) return res.status(500).send(false)
+                            })
+                        }
+                    })
+                });
+            }
+        });
+
+        return res.status(200).send(true)
     })
 }
 
@@ -318,5 +360,7 @@ module.exports = {
     getDocsPublicByFilter,
     sendDocument,
     deleteDocument,
-    updateDocument
+    updateDocument,
+    getPublicDocById,
+    getPublicDocByUserId
 }
