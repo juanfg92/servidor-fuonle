@@ -42,8 +42,8 @@ async function newIncidence(req, res) {
 async function getIncidentsUnprocessed(req, res) {
     Incidence.find({ processed: false }, (err, incidents) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        if (incidents.length == 0) return res.status(404).send({ message: `no results have been obtained` })
-        res.status(200).send({ Incidents: incidents })
+        if (incidents.length < 2) return res.status(404).send({ message: `no results have been obtained` })
+        return res.status(200).send(true)
     })
 }
 
