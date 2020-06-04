@@ -30,5 +30,9 @@ module.exports = {
         suggestionTittle: `the suggestion tittle must be between 2 and 128 characters and start with a letter`,
         userEmail: `Email not valid`,
         userName: `the user name must be between 2 and 32 characters, not contain spaces and empy start with a letter`
+    },
+    mailer: {
+        user: 'fuonle@gmail.com',
+        password: 'fuonle1a2b3c'
     }
 };

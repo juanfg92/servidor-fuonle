@@ -1,22 +1,28 @@
-'use strict'
+"use strict";
 
-const services = require('../services/jwt')
+const serviceJwt = require("../services/jwt");
+const jwt = require('jwt-simple')
+const User = require('../models/user')
 
 function isAuth(req, res, next) {
     if (!req.headers.authorization) {
-        return res.status(403).send({ message: 'No tienes autorización' })
+        return res.status(403).send({
+            message: "Forbidden: You don't have permission to access on this server"
+        });
     }
 
-    const token = req.headers.authorization.split(" ")[1]
-
-    services.decodeToken(token)
+    const token = req.headers.authorization;
+    serviceJwt
+        .decodeToken(token)
         .then(response => {
-            req.user = response
-            next()
+            req.user = response;
+            next();
         })
         .catch(response => {
-            res.status(500).send({ response })
-        })
+            return res.status(403).send({
+                message: "Invalid token"
+            });
+        });
 }
 
-module.exports = isAuth
+module.exports = isAuth;

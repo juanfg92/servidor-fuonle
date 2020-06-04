@@ -3,6 +3,7 @@
 const User = require('../models/user')
 const serviceJwt = require('../services/jwt')
 const parameters = require('../../parameters')
+const mailer = require('../services/mailer')
 
 /**
  * Save user
@@ -68,6 +69,7 @@ async function signUp(req, res) {
 
     user.save((err, user) => {
         if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+        mailer.sendWelcomeEmail(user.email, user.userName)
         return res.status(200).send(true);
     })
 }
