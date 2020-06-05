@@ -84,7 +84,7 @@ async function signUp(req, res) {
 function signIn(req, res) {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) return res.status(500).send({ message: err })
-        if (!user) return res.status(404).send(false)
+        if (!user) return res.status(200).send(false)
 
         //compare candidate password
         user.comparePassword(req.body.password, (err, isMatch) => {
@@ -198,7 +198,7 @@ async function getUserByEmail(req, res) {
     User.findOne({ email: { $regex: exp } }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
         if (!user) return res.status(200).send(false)
-        res.status(200).send(user)
+        return res.status(200).send(user)
     })
 }
 
@@ -389,7 +389,7 @@ async function sendNewPassword(req, res) {
                 })
 
             } else { //if request has already been processed
-                return res.status(200).send({ message: `This request has already been processed` })
+                return res.status(200).send(false)
             }
         }
     })

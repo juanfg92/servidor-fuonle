@@ -116,5 +116,77 @@ module.exports = {
             .catch(err => {
                 console.error(err);
             });
+    },
+    sendResetPasswordClassroom: (email, idRestore, username, userId) => {
+        let transporter = nodemailer.createTransport(defaultConfig);
+        let handlebarOptions = {
+            viewEngine: {
+                extName: ".hbs",
+                partialsDir: "src/views/",
+                layoutsDir: "src/views/",
+                defaultLayout: "resetPasswordClassroom.hbs"
+            },
+            viewPath: "src/views/",
+            extName: ".hbs"
+        };
+
+        transporter.use("compile", hbs(handlebarOptions));
+
+        let mailOptions = {
+            from: parameters.mailer.user,
+            to: email,
+            subject: "Reset password",
+            template: "resetPasswordClassroom",
+            context: {
+                id: idRestore,
+                email: email,
+                username: username,
+                userId: userId
+            }
+        };
+        transporter
+            .sendMail(mailOptions)
+            .then(() => {
+                console.log(`New reset password mail sent to ${email}`);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    },
+    passwordRestoredClassroom: (email, password, username, className) => {
+        let transporter = nodemailer.createTransport(defaultConfig);
+        let handlebarOptions = {
+            viewEngine: {
+                extName: ".hbs",
+                partialsDir: "src/views/",
+                layoutsDir: "src/views/",
+                defaultLayout: "passwordRestoredClassroom.hbs"
+            },
+            viewPath: "src/views/",
+            extName: ".hbs"
+        };
+
+        transporter.use("compile", hbs(handlebarOptions));
+
+        let mailOptions = {
+            from: parameters.mailer.user,
+            to: email,
+            subject: "Password Restored",
+            template: "passwordRestoredClassroom",
+            context: {
+                email: email,
+                password: password,
+                username: username,
+                className: className
+            }
+        };
+        transporter
+            .sendMail(mailOptions)
+            .then(() => {
+                console.log(`Password restore mail sent to ${email}`);
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 }

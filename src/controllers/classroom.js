@@ -4,10 +4,14 @@ const Classroom = require('../models/classroom')
 const Section = require('../models/section')
 const Doc_private = require('../models/document_private')
 const Comment = require('../models/comment')
+const RestorePassword = require('../models/restore_password')
+const User = require('../models/user')
 const parameters = require('../../parameters')
 const path = require("path");
 const fs = require("fs");
 var rimraf = require("rimraf");
+const mailer = require('../services/mailer')
+var generator = require('generate-password');
 
 /**
  * add new classroom
@@ -355,6 +359,96 @@ async function updateClassroom(req, res) {
     }
 }
 
+/**
+ * send request to recover password
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function restorePassword(req, res) {
+    let classId = req.body.classId
+
+    //get classroom by id
+    Classroom.findById({ _id: classId }, (err, classroom) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+        //check if the user is administrator of this class
+        if (classroom.administrators.indexOf(req.body.userId) > -1) {
+            let rp = new RestorePassword({
+                _id_subject: classroom._id
+            })
+
+            //insert new restorePassword
+            rp.save((err, rpGenerated) => {
+                if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+
+                //find user to get email, userName, id
+                User.findById({ _id: req.body.userId }, (err, user) => {
+                    if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+                    mailer.sendResetPasswordClassroom(user.email, rpGenerated._id, user.userName, user._id)
+                    return res.status(200).send(true);
+                })
+            })
+        } else {
+            return res.status(200).send(false)
+        }
+    })
+}
+
+/**
+ * send new password of request to recover password
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function sendNewPassword(req, res) {
+    let restId = req.params.restoreid
+    RestorePassword.findById({ _id: restId }, (err, rp) => {
+        if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+        if (rp) {
+            if (!rp.finished) { //if not processed
+                //generate new password
+                let password = generator.generate({
+                    length: 10,
+                    numbers: true
+                });
+                let classroom = new Classroom()
+
+                //encryp new password
+                classroom.cryptPassword(password, (err, passEncrypt) => {
+                    if (err) return res.status(500).send({ message: `Error server: ${err}` })
+                    classroom = {
+                        password: passEncrypt
+                    }
+
+                    //update classroom password
+                    Classroom.findOneAndUpdate({ _id: rp._id_subject }, classroom, (err, classroomUpdate) => {
+                        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+                        //update status finished to true
+                        rp = {
+                            finished: true
+                        }
+
+                        //update restorePassword
+                        RestorePassword.findOneAndUpdate({ _id: restId }, rp, (err, rpUpdate) => {
+                            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+
+                            //find user to get email and userName
+                            User.findById({ _id: req.params.userid }, (err, user) => {
+                                if (err) return res.status(500).send({ message: `Error server: ${err}` })
+                                mailer.passwordRestoredClassroom(user.email, password, user.userName, classroomUpdate.classroomName)
+                                return res.status(200).send(true)
+                            })
+                        })
+                    })
+                })
+
+            } else { //if request has already been processed
+                return res.status(200).send(false)
+            }
+        }
+    })
+}
+
 module.exports = {
     newClassroom,
     checkAdmin,
@@ -370,5 +464,7 @@ module.exports = {
     checkWhiteList,
     addUserWhiteList,
     deleteUserWhiteList,
-    getClassUserWhiteList
+    getClassUserWhiteList,
+    restorePassword,
+    sendNewPassword
 }
