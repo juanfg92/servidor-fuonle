@@ -22,6 +22,7 @@ const suggestionRoutes = require("./src/routes/suggestion");
 const userRoutes = require("./src/routes/user");
 const messageRoutes = require("./src/routes/message");
 const chatRoutes = require("./src/routes/chat");
+const restorePassword = require("./src/routes/restore_password");
 
 /** Middlewares **/
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -58,5 +59,6 @@ app.use('/api-fuonle', suggestionRoutes)
 app.use('/api-fuonle', userRoutes)
 app.use('/api-fuonle', messageRoutes)
 app.use('/api-fuonle', chatRoutes)
+app.use('/api-fuonle', restorePassword)
 
 module.exports = app;

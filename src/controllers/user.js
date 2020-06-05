@@ -1,9 +1,11 @@
 'use strict'
 
 const User = require('../models/user')
+const RestorePassword = require('../models/restore_password')
 const serviceJwt = require('../services/jwt')
 const parameters = require('../../parameters')
 const mailer = require('../services/mailer')
+var generator = require('generate-password');
 
 /**
  * Save user
@@ -322,28 +324,75 @@ async function updateUser(req, res) {
             }
         })
     }).select('+password');
+}
 
+/**
+ * send request to recover password
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function restorePassword(req, res) {
+    let email = req.body.email
+    let exp = new RegExp(email, 'i');
+    //get user by email
+    User.findOne({ email: { $regex: exp } }, (err, user) => {
+        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (!user) return res.status(200).send(false)
+        if (user) {
+            let rp = new RestorePassword({
+                _id_subject: user._id
+            })
+            rp.save((err, rpGenerated) => {
+                if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+                mailer.sendResetPasswordUser(user.email, rpGenerated._id, user.userName)
+                return res.status(200).send(true);
+            })
+        }
+    })
+}
 
+/**
+ * send new password of request to recover password
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function sendNewPassword(req, res) {
+    let restId = req.params.restoreid
+    RestorePassword.findById({ _id: restId }, (err, rp) => {
+        if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
+        if (rp) {
+            if (!rp.finished) { //if not processed
+                //generate new password
+                let password = generator.generate({
+                    length: 10,
+                    numbers: true
+                });
+                let user = new User()
+                user.cryptPassword(password, (err, passEncrypt) => {
+                    if (err) return res.status(500).send({ message: `Error server: ${err}` })
+                    user = {
+                            password: passEncrypt
+                        }
+                        //update user password
+                    User.findOneAndUpdate({ _id: rp._id_subject }, user, (err, userUpdate) => {
+                        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+                            //update status finished to true
+                        rp = {
+                            finished: true
+                        }
+                        RestorePassword.findOneAndUpdate({ _id: restId }, rp, (err, rpUpdate) => {
+                            if (err) return res.status(500).send({ message: `Error server: ${err}` })
+                            mailer.passwordRestoredUser(userUpdate.email, password, userUpdate.userName)
+                            return res.status(200).send(true)
+                        })
+                    })
+                })
 
-    // Check duplication email
-    // try {
-    //     let emailFound = await User.findOne({ email: req.body.email });
-    //     if (emailFound) {
-    //         return res.status(400).send({ message: `the email: ${req.body.email} is already registered` });
-    //     }
-    // } catch (err) {
-    //     return res.status(500).send({ message: `Error server: ${err}` });
-    // }
-
-    // Check duplication userName
-    // try {
-    //     let userFound = await User.findOne({ userName: req.body.userName });
-    //     if (userFound) {
-    //         return res.status(400).send({ message: `the user name: ${req.body.userName} is already registered` });
-    //     }
-    // } catch (err) {
-    //     return res.status(500).send({ message: `Error server: ${err}` });
-    // }
+            } else { //if request has already been processed
+                return res.status(200).send({ message: `This request has already been processed` })
+            }
+        }
+    })
 }
 
 module.exports = {
@@ -360,5 +409,7 @@ module.exports = {
     updateUser,
     addDocFavorite,
     deleteDocFavorite,
-    getDocFavUser
+    getDocFavUser,
+    restorePassword,
+    sendNewPassword
 }

@@ -5,9 +5,9 @@ const api = express.Router()
 const auth = require('../middlewares/auth')
 const studyLevelCtrl = require('../controllers/study_level')
 
-api.post('/new-study-level', studyLevelCtrl.newStudyLevel)
+api.post('/new-study-level', auth, studyLevelCtrl.newStudyLevel)
 api.get('/get-study-level', studyLevelCtrl.getStudyLevels)
-api.delete('/delete-study-level', studyLevelCtrl.deleteStudyLevel)
-api.put('/update-study-level', studyLevelCtrl.updateStudyLevel)
+api.delete('/delete-study-level', auth, studyLevelCtrl.deleteStudyLevel)
+api.put('/update-study-level', auth, studyLevelCtrl.updateStudyLevel)
 
 module.exports = api
