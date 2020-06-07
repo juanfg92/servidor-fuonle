@@ -34,7 +34,7 @@ async function newSuggestion(req, res) {
 
     suggestion.save((err, suggestion) => {
         if (err) res.status(500).send({ message: `Error creating the suggestion: ${err}` })
-        return res.status(200).send({ suggestion: suggestion });
+        return res.status(200).send(true);
     })
 }
 
