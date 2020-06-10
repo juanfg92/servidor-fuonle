@@ -45,6 +45,11 @@ async function newComment(req, res) {
     })
 }
 
+/**
+ * get all comment from section
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getCommentFromSection(req, res) {
     Comment.find({ _id_section: req.body.sectionId }, (err, comments) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })

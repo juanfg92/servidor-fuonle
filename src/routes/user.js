@@ -8,7 +8,7 @@ const userCtrl = require('../controllers/user')
 api.post('/signup', userCtrl.signUp)
 api.post('/signin', userCtrl.signIn)
 api.post('/get-user-by-jwt', userCtrl.getUserByJwt)
-api.get('/get-users', userCtrl.getUsers) //poner AUTH
+api.get('/get-users', userCtrl.getUsers)
 api.post('/get-users-by-email', auth, userCtrl.getUsersByEmail)
 api.post('/get-users-by-id', auth, userCtrl.getUsersById)
 api.post('/get-user-by-id', auth, userCtrl.getUserById)
