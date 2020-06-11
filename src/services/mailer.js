@@ -5,16 +5,17 @@ const parameters = require("../../parameters");
 const hbs = require("nodemailer-express-handlebars");
 
 const transporterConfig = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    auth: {
-        user: parameters.mailer.user,
-        pass: parameters.mailer.password
-    },
-    secure: false,
-    tls: { rejectUnauthorized: false },
-    debug: true
-})
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: parameters.mailer.user,
+            pass: parameters.mailer.password
+        }
+    })
+    // secure: false,
+    //     tls: { rejectUnauthorized: false },
+    //     debug: true
 
 // const defaultConfig = {
 //     service: "gmail",
