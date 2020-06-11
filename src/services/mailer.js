@@ -4,7 +4,7 @@ var nodemailer = require('nodemailer');
 const parameters = require("../../parameters");
 const hbs = require("nodemailer-express-handlebars");
 
-const defaultConfig = smtpTransport('SMTP', {
+const defaultConfig = {
     service: "gmail",
     port: 587,
     auth: {
@@ -15,8 +15,7 @@ const defaultConfig = smtpTransport('SMTP', {
     secure: false,
     tls: { rejectUnauthorized: false },
     debug: true
-})
-
+}
 
 // const defaultConfig = {
 //     service: "gmail",
@@ -28,7 +27,7 @@ const defaultConfig = smtpTransport('SMTP', {
 
 module.exports = {
     sendWelcomeEmail: (email, username) => {
-        let transporter = nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport('SMTP', defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -62,7 +61,7 @@ module.exports = {
             });
     },
     sendResetPasswordUser: (email, idRestore, username) => {
-        let transporter = nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport('SMTP', defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -97,7 +96,7 @@ module.exports = {
             });
     },
     passwordRestoredUser: (email, password, username) => {
-        let transporter = nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport('SMTP', defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -132,7 +131,7 @@ module.exports = {
             });
     },
     sendResetPasswordClassroom: (email, idRestore, username, userId) => {
-        let transporter = nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport('SMTP', defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -168,7 +167,7 @@ module.exports = {
             });
     },
     passwordRestoredClassroom: (email, password, username, className) => {
-        let transporter = nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport('SMTP', defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
