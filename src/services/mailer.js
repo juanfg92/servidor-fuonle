@@ -4,13 +4,27 @@ var nodemailer = require('nodemailer');
 const parameters = require("../../parameters");
 const hbs = require("nodemailer-express-handlebars");
 
-const defaultConfig = {
+const defaultConfig = smtpTransport('SMTP', {
     service: "gmail",
+    port: 587,
     auth: {
         user: parameters.mailer.user,
         pass: parameters.mailer.password
-    }
-};
+    },
+    authMethod: 'NTLM',
+    secure: false,
+    tls: { rejectUnauthorized: false },
+    debug: true
+})
+
+
+// const defaultConfig = {
+//     service: "gmail",
+//     auth: {
+//         user: parameters.mailer.user,
+//         pass: parameters.mailer.password
+//     }
+// };
 
 module.exports = {
     sendWelcomeEmail: (email, username) => {
