@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+var dateNow = require("date-now")
 
 const CommentSchema = Schema({
     _id_classroom: { type: String, require: true },
@@ -11,7 +12,7 @@ const CommentSchema = Schema({
     writeAdmin: { type: Boolean, default: false },
     text: { type: String, require: true },
     dateString: { type: String, require: true },
-    creationDate: { type: Date, default: Date.now() }
+    creationDate: { type: Number }
 })
 
 CommentSchema.pre('save', function(next) {

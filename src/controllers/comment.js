@@ -3,6 +3,7 @@
 const Comment = require('../models/comment')
 const User = require('../models/user');
 const { now } = require('moment');
+var dateNow = require("date-now")
 
 /**
  * new comment
@@ -29,9 +30,8 @@ async function newComment(req, res) {
 
     User.findById({ _id: req.body.userId }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-        let date = new Date().now()
-        date = date.getMilliseconds()
-            // Save comment
+
+        // Save comment
         let comment = new Comment({
             _id_classroom: req.body.classroomId,
             _id_section: req.body.sectionId,
@@ -39,6 +39,7 @@ async function newComment(req, res) {
             userName: user['userName'],
             writeAdmin: req.body.writeAdmin,
             text: req.body.text,
+            creationDate: dateNow()
         })
         comment.save((err, comment) => {
             if (err) res.status(500).send({ message: `Error creating the comment: ${err}` })
