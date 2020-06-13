@@ -4,30 +4,35 @@ var nodemailer = require('nodemailer');
 const parameters = require("../../parameters");
 const hbs = require("nodemailer-express-handlebars");
 
-const transporterConfig = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: parameters.mailer.user,
-            pass: parameters.mailer.password
-        }
-    })
-    // secure: false,
-    //     tls: { rejectUnauthorized: false },
-    //     debug: true
-
-// const defaultConfig = {
+// const transporterConfig = nodemailer.createTransport({
+// host: 'smtp.gmail.com',
+// port: 465,
+// secure: true,
+// auth: {
+//     user: parameters.mailer.user,
+//     pass: parameters.mailer.password
+// }
 //     service: "gmail",
 //     auth: {
 //         user: parameters.mailer.user,
 //         pass: parameters.mailer.password
 //     }
-// };
+// })
+// secure: false,
+//     tls: { rejectUnauthorized: false },
+//     debug: true
+
+const defaultConfig = {
+    service: "gmail",
+    auth: {
+        user: parameters.mailer.user,
+        pass: parameters.mailer.password
+    }
+};
 
 module.exports = {
     sendWelcomeEmail: (email, username) => {
-        let transporter = transporterConfig //nodemailer.createTransport(defaultConfig);
+        let transporter = nodemailer.createTransport(defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -60,8 +65,8 @@ module.exports = {
                 console.error(err);
             });
     },
-    sendResetPasswordUser: (email, idRestore, username) => {
-        let transporter = transporterConfig
+    sendResetPasswordUser: (email, idRestore, username, idUser) => {
+        let transporter = nodemailer.createTransport(defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -81,9 +86,10 @@ module.exports = {
             subject: "Reset password",
             template: "resetPasswordUser",
             context: {
-                id: idRestore,
+                idRestore: idRestore,
                 email: email,
-                username: username
+                username: username,
+                idUser: idUser
             }
         };
         transporter
@@ -96,7 +102,7 @@ module.exports = {
             });
     },
     passwordRestoredUser: (email, password, username) => {
-        let transporter = transporterConfig
+        let transporter = nodemailer.createTransport(defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -131,7 +137,7 @@ module.exports = {
             });
     },
     sendResetPasswordClassroom: (email, idRestore, username, userId) => {
-        let transporter = transporterConfig
+        let transporter = nodemailer.createTransport(defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",
@@ -151,7 +157,7 @@ module.exports = {
             subject: "Reset password",
             template: "resetPasswordClassroom",
             context: {
-                id: idRestore,
+                idRestore: idRestore,
                 email: email,
                 username: username,
                 userId: userId
@@ -167,7 +173,7 @@ module.exports = {
             });
     },
     passwordRestoredClassroom: (email, password, username, className) => {
-        let transporter = transporterConfig
+        let transporter = nodemailer.createTransport(defaultConfig);
         let handlebarOptions = {
             viewEngine: {
                 extName: ".hbs",

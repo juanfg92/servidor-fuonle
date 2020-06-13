@@ -1,7 +1,8 @@
 'use strict'
 
 const Comment = require('../models/comment')
-const User = require('../models/user')
+const User = require('../models/user');
+const { now } = require('moment');
 
 /**
  * new comment
@@ -28,8 +29,9 @@ async function newComment(req, res) {
 
     User.findById({ _id: req.body.userId }, (err, user) => {
         if (err) return res.status(500).send({ message: `Error server: ${err}` })
-
-        // Save comment
+        let date = new Date().now()
+        date = date.getMilliseconds()
+            // Save comment
         let comment = new Comment({
             _id_classroom: req.body.classroomId,
             _id_section: req.body.sectionId,

@@ -344,7 +344,7 @@ async function restorePassword(req, res) {
             })
             rp.save((err, rpGenerated) => {
                 if (err) res.status(500).send({ message: `Error creating the user: ${err}` })
-                mailer.sendResetPasswordUser(user.email, rpGenerated._id, user.userName)
+                mailer.sendResetPasswordUser(user.email, rpGenerated._id, user.userName, user._id)
                 return res.status(200).send(true);
             })
         }
