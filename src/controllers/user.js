@@ -81,7 +81,7 @@ async function signUp(req, res) {
  * @param {*} req 
  * @param {*} res 
  */
-function signIn(req, res) {
+async function signIn(req, res) {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) return res.status(500).send({ message: err })
         if (!user) return res.status(200).send(false)
@@ -92,6 +92,7 @@ function signIn(req, res) {
             if (!isMatch) {
                 return res.status(200).send(false)
             } else {
+
                 user.token = serviceJwt.createToken(user)
 
                 //update userToken
@@ -99,8 +100,9 @@ function signIn(req, res) {
                     if (err) {
                         return res.status(500).send({ message: `Error server: ${err}` })
                     }
+                    return res.status(200).send(user)
                 })
-                res.status(200).send(user)
+
             }
         })
     }).select('+password');

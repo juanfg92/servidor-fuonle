@@ -30,7 +30,7 @@ async function newClassroom(req, res) {
     }
 
     // classroomName validation 
-    if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.classroomName });
+    if (!(parameters.expReg.classroomName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.classroomName });
 
     // Password validation between 4 and 10 characters
     if (req.body.password.length < 4 || req.body.password.length > 10) return res.status(400).send({
