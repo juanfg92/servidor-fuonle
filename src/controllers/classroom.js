@@ -333,7 +333,7 @@ async function updateClassroom(req, res) {
 
     // classroomName validation 
     if (req.body.classroomName) {
-        if (!(parameters.expReg.categoryName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
+        if (!(parameters.expReg.classroomName.test(req.body.classroomName))) return res.status(400).send({ message: parameters.errMessage.categoryName });
     }
 
     // Check duplication classroomName
