@@ -104,7 +104,7 @@ async function addUserWhiteList(req, res) {
         Classroom.findOneAndUpdate({ _id: req.body.classroomId }, classroom, (err, classroom) => {
             if (err) return res.status(500).send({ message: `Error server: ${err}` })
 
-            return res.status(200).send({ message: `user: ${req.body.userId} added as administrator` })
+            return res.status(200).send({ message: `user: ${req.body.userId} added` })
         })
     } else {
         //if userId is already admin of this class
@@ -250,7 +250,7 @@ async function getClassroomsByClassroomName(req, res) {
     let classroomName = req.body.classroomName;
     let exp = new RegExp(classroomName, 'i');
     Classroom.find({ classroomName: { $regex: exp } }, (err, classrooms) => {
-        if (err) return res.status(500).send({ message: `Error server: ${err}` })
+        if (err) return res.status(200).send({ message: `Error server: ${err}` })
         if (classrooms.length == 0) return res.status(200).send(false)
         return res.status(200).send(classrooms)
     })
