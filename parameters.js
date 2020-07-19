@@ -32,7 +32,11 @@ module.exports = {
         userName: `the user name must be between 2 and 32 characters, not contain spaces and empy start with a letter`
     },
     mailer: {
+        user: 'fuonle@outlook.es',
+        password: 'f1o2e3n4l5e6'
+    }
+    /*mailer: {
         user: 'fuonle@gmail.com',
         password: 'fuonle1a2b3c'
-    }
+    }*/
 };

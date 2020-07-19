@@ -4,32 +4,20 @@ var nodemailer = require('nodemailer');
 const parameters = require("../../parameters");
 const hbs = require("nodemailer-express-handlebars");
 
-// const transporterConfig = nodemailer.createTransport({
-// host: 'smtp.gmail.com',
-// port: 465,
-// secure: true,
-// auth: {
-//     user: parameters.mailer.user,
-//     pass: parameters.mailer.password
-// }
-//     service: "gmail",
-//     auth: {
-//         user: parameters.mailer.user,
-//         pass: parameters.mailer.password
-//     }
-// })
-// secure: false,
-//     tls: { rejectUnauthorized: false },
-//     debug: true
-
 const defaultConfig = {
-    service: "gmail",
+    host: "smtp.office365.com", // hostname
+    secureConnection: false, // TLS requires secureConnection to be false
+    port: 587, // port for secure SMTP
+    tls: {
+        ciphers: 'SSLv3'
+    },
     auth: {
         user: parameters.mailer.user,
         pass: parameters.mailer.password
     }
 };
-
+//smtp.office365.com   587
+//outlook.office365.com  993
 module.exports = {
     sendWelcomeEmail: (email, username) => {
         let transporter = nodemailer.createTransport(defaultConfig);
