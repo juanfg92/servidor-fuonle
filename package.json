@@ -35,7 +35,7 @@
         "mammoth": "^1.4.9",
         "moment": "^2.24.0",
         "mongoose": "^5.9.7",
-        "nodemailer": "^6.4.8",
+        "nodemailer": "^6.4.16",
         "nodemailer-express-handlebars": "^4.0.0",
         "pdf2html": "^2.5.2",
         "request": "^2.88.2",
